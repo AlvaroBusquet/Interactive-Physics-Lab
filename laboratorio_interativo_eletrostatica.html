@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laboratório Interativo de Eletrostática</title>
+  <style>
+    :root{
+      --bg:#f4f6f8;
+      --panel:#ffffff;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#64748b;
+      --border:#d7dde5;
+      --accent:#2563eb;
+      --line:#667085;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .app{
+      max-width:1180px;
+      margin:0 auto;
+      padding:20px;
+    }
+    h1{margin:0 0 6px;font-size:clamp(1.45rem,2vw,2rem)}
+    .lead{margin:0 0 18px;color:var(--muted)}
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 250px;
+      gap:14px;
+      align-items:start;
+    }
+    .canvas-wrap{
+      overflow:hidden;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:var(--panel);
+    }
+    canvas{
+      display:block;
+      width:100%;
+      height:auto;
+      touch-action:none;
+    }
+    .status{
+      margin:8px 2px 0;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+    aside{display:grid;gap:12px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+    }
+    .card-title{
+      font-weight:700;
+      margin-bottom:9px;
+    }
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    .full-span{grid-column:1/-1}
+    button{
+      min-height:42px;
+      border:1px solid var(--border);
+      border-radius:9px;
+      background:#fff;
+      color:var(--text);
+      cursor:pointer;
+      font:inherit;
+      padding:8px 10px;
+    }
+    button:hover{background:#f8fafc}
+    button:focus-visible,input:focus-visible,select:focus-visible{
+      outline:3px solid rgba(37,99,235,.22);
+      outline-offset:2px;
+    }
+    label{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin:8px 0;
+    }
+    input[type="checkbox"]{width:18px;height:18px}
+    input[type="range"]{width:100%}
+    select{
+      width:100%;
+      min-height:40px;
+      padding:8px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:#fff;
+      color:var(--text);
+      font:inherit;
+    }
+    .force-controls{
+      margin:5px 0 0 25px;
+      padding:10px;
+      border:1px solid var(--border);
+      border-radius:9px;
+      background:#f8fafc;
+    }
+    .force-controls label{
+      display:block;
+      font-size:.88rem;
+      margin:0 0 6px;
+    }
+    .force-controls select{margin-bottom:8px;font-size:.88rem}
+    .force-controls [hidden]{display:none}
+    .force-legend{display:flex;flex-wrap:wrap;gap:8px 13px;margin:4px 0 9px}
+    .force-key{display:inline-flex;align-items:center;gap:5px;font-size:.79rem;color:var(--muted)}
+    .force-dot{width:13px;height:4px;border-radius:4px;display:inline-block}
+    .small{font-size:.9rem;color:var(--muted)}
+    .wide{width:100%;margin-top:8px}
+    .explain{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+    }
+    .explain .card p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.45;
+    }
+    @media (max-width:860px){
+      .layout{grid-template-columns:1fr}
+      .explain{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h1>Laboratório Interativo de Eletrostática</h1>
+    <p class="lead">Explore campos elétricos, linhas de campo e potencial elétrico em diferentes configurações de cargas.</p>
+
+    <div class="layout">
+      <section>
+        <div class="canvas-wrap">
+          <canvas id="efCanvas" width="760" height="470"
+            aria-label="Simulação interativa do campo elétrico"></canvas>
+        </div>
+        <p id="status" class="status" aria-live="polite">
+          Arraste uma carga para alterar a configuração.
+        </p>
+      </section>
+
+      <aside>
+        <div class="card">
+          <div class="card-title">Configuração</div>
+          <div class="grid2">
+            <button type="button" id="addPos">+ carga</button>
+            <button type="button" id="addNeg">− carga</button>
+            <button type="button" id="dipole">Dipolo</button>
+            <button type="button" id="circlePos">Círculo +</button>
+            <button type="button" id="lineCharge">Linha +</button>
+            <button type="button" id="plates">Placas ±</button>
+            <button type="button" id="clear" class="full-span">Limpar</button>
+          </div>
+          <p class="small" style="margin:10px 0 0">Círculo +: anel de cargas positivas. Placas ±: duas fileiras paralelas de cargas opostas.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Visualização</div>
+          <label><input id="vectors" type="checkbox" checked> Vetores de E</label>
+          <label><input id="lines" type="checkbox" checked> Linhas de campo</label>
+          <label><input id="potential" type="checkbox"> Mapa de potencial</label>
+          <label><input id="forces" type="checkbox"> Pares de forças (Coulomb)</label>
+          <div id="forceOptions" class="force-controls" hidden>
+            <label for="forceMode">Interações exibidas</label>
+            <select id="forceMode">
+              <option value="selected">Carga selecionada ↔ demais</option>
+              <option value="pair">Uma carga ↔ outra</option>
+              <option value="all">Todos os pares</option>
+            </select>
+            <div id="forcePartnerRow" hidden>
+              <label for="forcePartner">Segunda carga do par</label>
+              <select id="forcePartner"></select>
+            </div>
+            <div class="force-legend" aria-label="Legenda das forças">
+              <span class="force-key"><span class="force-dot" style="background:#047857"></span>Atração</span>
+              <span class="force-key"><span class="force-dot" style="background:#b45309"></span>Repulsão</span>
+            </div>
+            <div id="forceInfo" class="small" aria-live="polite">Selecione uma carga no quadro.</div>
+            <p class="small" style="font-size:.79rem;margin:7px 0 0">Cada par tem duas forças iguais e opostas. O comprimento representa a intensidade relativa em escala visual não linear; não indica newtons.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <label for="strength" class="card-title" style="display:block">Intensidade das cargas</label>
+          <input id="strength" type="range" min="0.4" max="2.5" value="1" step="0.1">
+          <div class="small">Escala: <span id="strengthValue">1,0</span>×</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Carga selecionada</div>
+          <div id="selInfo" class="small">Clique em uma carga.</div>
+          <div class="grid2" style="margin-top:8px">
+            <button type="button" data-nudge="left">←</button>
+            <button type="button" data-nudge="right">→</button>
+            <button type="button" data-nudge="up">↑</button>
+            <button type="button" data-nudge="down">↓</button>
+          </div>
+          <button type="button" id="removeSelected" class="wide">Remover selecionada</button>
+        </div>
+      </aside>
+    </div>
+
+    <div class="explain">
+      <div class="card">
+        <strong>Campo elétrico</strong>
+        <p>As setas indicam direção e sentido de <i>E</i>. O campo aponta para fora das cargas positivas e para dentro das negativas.</p>
+      </div>
+      <div class="card">
+        <strong>Linhas de campo</strong>
+        <p>As linhas partem das cargas positivas e terminam nas negativas. Cada trajetória é desenhada apenas uma vez.</p>
+      </div>
+      <div class="card">
+        <strong>Forças entre cargas</strong>
+        <p>As setas verdes representam atração e as alaranjadas, repulsão. Em cada par, as forças são opostas e têm a mesma intensidade (lei de Coulomb e terceira lei de Newton).</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (() => {
+    const canvas = document.getElementById('efCanvas');
+    const ctx = canvas.getContext('2d');
+    const status = document.getElementById('status');
+    const selInfo = document.getElementById('selInfo');
+    const W = canvas.width, H = canvas.height;
+
+    let charges = [];
+    let selected = -1;
+    let drag = -1;
+    const forcesInput = document.getElementById('forces');
+    const forceOptions = document.getElementById('forceOptions');
+    const forceMode = document.getElementById('forceMode');
+    const forcePartnerRow = document.getElementById('forcePartnerRow');
+    const forcePartner = document.getElementById('forcePartner');
+    const forceInfo = document.getElementById('forceInfo');
+
+    const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+    const strength = () => parseFloat(document.getElementById('strength').value) || 1;
+
+    function addCharge(x,y,q){
+      charges.push({x,y,q});
+      selected = charges.length - 1;
+      updateSelected();
+      status.textContent = `Carga ${q>0?'positiva':'negativa'} adicionada. Arraste-a para alterar o campo.`;
+      draw();
+    }
+
+    function resetDipole(){
+      charges = [
+        {x:W*.36,y:H*.5,q:1},
+        {x:W*.64,y:H*.5,q:-1}
+      ];
+      selected = forcesInput.checked ? 0 : -1;
+      updateSelected();
+      status.textContent = 'Dipolo: uma carga positiva e uma negativa. Arraste para mudar a separação.';
+      draw();
+    }
+
+    // Anel de cargas positivas igualmente espaçadas angularmente.
+    // Cada carga continua individualmente selecionável e arrastável.
+    function circularPositive(){
+      charges = [];
+      const count = 12;
+      const radius = 125;
+      for(let i=0;i<count;i++){
+        const a = -Math.PI/2 + i*2*Math.PI/count;
+        charges.push({
+          x: W/2 + radius*Math.cos(a),
+          y: H/2 + radius*Math.sin(a),
+          q: 1
+        });
+      }
+      selected = forcesInput.checked ? 0 : -1;
+      updateSelected();
+      status.textContent = 'Círculo +: 12 cargas positivas distribuídas em um anel. Arraste para modificar a distribuição.';
+      draw();
+    }
+
+    // Modelo discreto de duas placas paralelas: cargas + à esquerda
+    // e cargas − à direita; não representa condutores contínuos ideais.
+    function plates(){
+      charges = [];
+      const count = 11;
+      const top = 75;
+      const spacing = 32;
+      for(let i=0;i<count;i++){
+        const y = top + i*spacing;
+        charges.push({x:220,y,q:1}, {x:540,y,q:-1});
+      }
+      selected = forcesInput.checked ? 0 : -1;
+      updateSelected();
+      status.textContent = 'Placas ±: duas fileiras verticais paralelas, com 11 cargas positivas à esquerda e 11 negativas à direita.';
+      draw();
+    }
+
+    function lineCharge(){
+      charges = [];
+      for(let i=0;i<11;i++){
+        charges.push({x:W*.5,y:45+i*38,q:1});
+      }
+      selected = forcesInput.checked ? 0 : -1;
+      updateSelected();
+      status.textContent = 'Linha +: 11 cargas positivas ao longo de uma reta vertical.';
+      draw();
+    }
+
+    function fieldAt(x,y){
+      let ex=0, ey=0, v=0;
+      const s = strength();
+
+      for(const c of charges){
+        const dx = x-c.x;
+        const dy = y-c.y;
+        const r2 = dx*dx + dy*dy + 130;
+        const r = Math.sqrt(r2);
+        const fac = c.q*s/(r2*r);
+
+        ex += fac*dx;
+        ey += fac*dy;
+        v  += c.q*s/r;
+      }
+
+      return {ex,ey,v,mag:Math.hypot(ex,ey)};
+    }
+
+    function background(){
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0,0,W,H);
+
+      ctx.strokeStyle = '#e4e7ec';
+      ctx.lineWidth = 1;
+
+      for(let x=20;x<W;x+=40){
+        ctx.beginPath();
+        ctx.moveTo(x,0);
+        ctx.lineTo(x,H);
+        ctx.stroke();
+      }
+
+      for(let y=20;y<H;y+=40){
+        ctx.beginPath();
+        ctx.moveTo(0,y);
+        ctx.lineTo(W,y);
+        ctx.stroke();
+      }
+    }
+
+    function drawPotential(){
+      if(!document.getElementById('potential').checked || !charges.length) return;
+
+      const step = 6;
+      let max = .01;
+      const vals = [];
+
+      for(let y=0;y<H;y+=step){
+        for(let x=0;x<W;x+=step){
+          const v = fieldAt(x,y).v;
+          vals.push([x,y,v]);
+          max = Math.max(max,Math.abs(v));
+        }
+      }
+
+      // Contraste reforçado: a escala de cores é mais intensa, sem alterar V.
+      // A transformação não linear mantém visíveis as regiões de menor potencial.
+      const saturation = max*0.65;
+      for(const [x,y,v] of vals){
+        const normalized = Math.min(1,Math.abs(v)/saturation);
+        const alpha = 0.86*Math.pow(normalized,0.62);
+        ctx.fillStyle = v>=0
+          ? `rgba(225,38,57,${alpha})`
+          : `rgba(39,83,224,${alpha})`;
+        ctx.fillRect(x,y,step,step);
+      }
+    }
+
+    function drawArrow(x,y,ux,uy,size=7){
+      const px = -uy;
+      const py = ux;
+      const bx = x - ux*size;
+      const by = y - uy*size;
+
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.lineTo(bx+px*size*.48,by+py*size*.48);
+      ctx.lineTo(bx-px*size*.48,by-py*size*.48);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawVectors(){
+      if(!document.getElementById('vectors').checked) return;
+
+      ctx.strokeStyle = '#667085';
+      ctx.fillStyle = '#667085';
+      ctx.lineWidth = 1;
+
+      for(let y=32;y<H;y+=42){
+        for(let x=32;x<W;x+=42){
+          const f = fieldAt(x,y);
+          if(f.mag < 1e-9) continue;
+
+          const ux = f.ex/f.mag;
+          const uy = f.ey/f.mag;
+          const len = 6 + 14*Math.min(1,Math.sqrt(f.mag*50000));
+          const x2 = x + ux*len;
+          const y2 = y + uy*len;
+
+          ctx.beginPath();
+          ctx.moveTo(x,y);
+          ctx.lineTo(x2,y2);
+          ctx.stroke();
+
+          drawArrow(x2,y2,ux,uy,5);
+        }
+      }
+    }
+
+    // Integra a linha sem desenhá-la: isso permite verificar cobertura e
+    // remover trajetórias repetidas antes de renderizar no canvas.
+    function trace(seedX,seedY,integrationDir){
+      let x=seedX, y=seedY;
+      const points=[{x,y}];
+      let destination=-1;
+      const step=3;
+
+      for(let n=0;n<850;n++){
+        const f=fieldAt(x,y);
+        if(f.mag<1e-11) break;
+        const ux=integrationDir*f.ex/f.mag;
+        const uy=integrationDir*f.ey/f.mag;
+        // Ponto médio: curvas mais estáveis do que o passo de Euler.
+        const mid=fieldAt(x+ux*step/2,y+uy*step/2);
+        if(mid.mag<1e-11) break;
+        const nx=x+integrationDir*mid.ex/mid.mag*step;
+        const ny=y+integrationDir*mid.ey/mid.mag*step;
+        if(nx<0 || nx>W || ny<0 || ny>H) break;
+        x=nx; y=ny;
+        points.push({x,y});
+
+        for(let j=0;j<charges.length;j++){
+          const c=charges[j];
+          // Apenas cargas do sinal oposto podem encerrar a integração.
+          if(c.q*integrationDir<0 && Math.hypot(x-c.x,y-c.y)<11){
+            destination=j;
+            break;
+          }
+        }
+        if(destination!==-1) break;
+      }
+      return {points,destination,integrationDir};
+    }
+
+    function paintLine(line){
+      const pts=line.points;
+      if(pts.length<3) return;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x,pts[0].y);
+      for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+      ctx.stroke();
+      // Setas sempre apontam na direção física de E, mesmo quando
+      // o traçado foi integrado de trás para frente (carga negativa).
+      for(const fraction of [.33,.68]){
+        const i=Math.min(pts.length-2,Math.max(1,Math.round((pts.length-1)*fraction)));
+        const before=pts[i-1], after=pts[i+1];
+        const dx=(after.x-before.x)*line.integrationDir;
+        const dy=(after.y-before.y)*line.integrationDir;
+        const d=Math.hypot(dx,dy);
+        if(d>0) drawArrow(pts[i].x,pts[i].y,dx/d,dy/d,7);
+      }
+    }
+
+    function drawLines(){
+      if(!document.getElementById('lines').checked || !charges.length) return;
+      ctx.save();
+      ctx.strokeStyle='#667085';
+      ctx.fillStyle='#667085';
+      ctx.lineWidth=1.3;
+      ctx.globalAlpha=.82;
+
+      const linesPerCharge=12;
+      const allLines=[];
+      const negativeIndices=[];
+      const covered=new Map();
+      const countFor=c=>Math.max(4,Math.round(linesPerCharge*Math.abs(c.q)));
+      const sector=(x,y,c,count)=>{
+        const angle=(Math.atan2(y-c.y,x-c.x)+2*Math.PI)%(2*Math.PI);
+        return Math.round(angle*count/(2*Math.PI))%count;
+      };
+
+      // Passada 1: linhas oriundas das cargas positivas (única origem).
+      charges.forEach((c,index)=>{
+        if(c.q<0){
+          negativeIndices.push(index);
+          covered.set(index,new Set());
+        }
+      });
+      charges.forEach(c=>{
+        if(c.q<=0) return;
+        const count=countFor(c);
+        for(let i=0;i<count;i++){
+          const a=2*Math.PI*i/count;
+          const line=trace(c.x+16*Math.cos(a),c.y+16*Math.sin(a),1);
+          if(line.points.length>2) allLines.push(line);
+        }
+      });
+
+      // Marca onde as linhas positivas realmente chegam à superfície
+      // das cargas negativas (não apenas se há uma negativa no cenário).
+      for(const line of allLines){
+        if(line.destination<0 || !covered.has(line.destination)) continue;
+        const c=charges[line.destination];
+        const end=line.points[line.points.length-1];
+        covered.get(line.destination).add(sector(end.x,end.y,c,countFor(c)));
+      }
+
+      // Para cada setor ainda sem linha, integra contra E. Assim até
+      // cargas negativas em configurações mistas recebem linhas completas.
+      // Setores cobertos NÃO são traçados outra vez (sem duplicação).
+      for(const index of negativeIndices){
+        const c=charges[index];
+        const count=countFor(c);
+        const seen=covered.get(index);
+        for(let i=0;i<count;i++){
+          if(seen.has(i)) continue;
+          const a=2*Math.PI*i/count;
+          const line=trace(c.x+16*Math.cos(a),c.y+16*Math.sin(a),-1);
+          if(line.points.length<3) continue;
+          // Um traçado inverso pode coincidir com outro traçado até
+          // mesmo quando seus pontos iniciais diferem ligeiramente.
+          // Compara a geometria total, em ambos os sentidos.
+          const isDuplicate=allLines.some(other=>{
+            const p=line.points, q=other.points;
+            const m=11;
+            let closeForward=0, closeReverse=0;
+            for(let k=0;k<m;k++){
+              const t=k/(m-1);
+              const a=p[Math.round(t*(p.length-1))];
+              const b=q[Math.round(t*(q.length-1))];
+              const r=q[Math.round((1-t)*(q.length-1))];
+              if(Math.hypot(a.x-b.x,a.y-b.y)<7) closeForward++;
+              if(Math.hypot(a.x-r.x,a.y-r.y)<7) closeReverse++;
+            }
+            return Math.max(closeForward,closeReverse)>=9;
+          });
+          if(!isDuplicate){
+            allLines.push(line);
+            seen.add(i);
+          }
+        }
+      }
+
+      for(const line of allLines) paintLine(line);
+      ctx.restore();
+    }
+
+    // Cada interação i-j gera simultaneamente as duas forças da
+    // terceira lei de Newton: F(i←j) = −F(j←i).
+    // A distância é em pixels, então F é uma intensidade RELATIVA,
+    // não uma força em N (não há escala física nem q em coulombs).
+    function getForcePairs(){
+      if(!forcesInput.checked || charges.length<2) return [];
+      const mode=forceMode.value;
+      const pairs=[];
+      if(mode==='all'){
+        for(let i=0;i<charges.length;i++){
+          for(let j=i+1;j<charges.length;j++) pairs.push([i,j]);
+        }
+      } else if(selected>=0 && selected<charges.length){
+        if(mode==='pair'){
+          const other=Number(forcePartner.value);
+          if(Number.isInteger(other) && other>=0 && other<charges.length && other!==selected){
+            pairs.push([selected,other]);
+          }
+        } else {
+          for(let j=0;j<charges.length;j++){
+            if(j!==selected) pairs.push([selected,j]);
+          }
+        }
+      }
+      return pairs;
+    }
+
+    function forceData(i,j){
+      const a=charges[i], b=charges[j];
+      const dx=b.x-a.x, dy=b.y-a.y;
+      const distance=Math.hypot(dx,dy);
+      if(distance<1e-6) return null; // sem direção definida para posições coincidentes
+      const uX=dx/distance, uY=dy/distance;
+      const attractive=a.q*b.q<0;
+      const scale=strength();
+      const magnitude=10000*Math.abs(a.q*b.q)*scale*scale/(distance*distance);
+      return {i,j,a,b,uX,uY,distance,attractive,magnitude,
+        color:attractive?'#047857':'#b45309'};
+    }
+
+    function drawForceArrow(c,ux,uy,len){
+      // A seta inicia na borda da carga, não no centro do símbolo ±.
+      const x0=c.x+ux*15, y0=c.y+uy*15;
+      const x1=x0+ux*len, y1=y0+uy*len;
+      ctx.beginPath();
+      ctx.moveTo(x0,y0);
+      ctx.lineTo(x1,y1);
+      ctx.stroke();
+      drawArrow(x1,y1,ux,uy,Math.min(11,Math.max(5.5,len*.34)));
+    }
+
+    function drawForces(){
+      if(!forcesInput.checked) return;
+      const mode=forceMode.value;
+      const pairs=getForcePairs().map(([i,j])=>forceData(i,j)).filter(Boolean);
+      if(!pairs.length) return;
+      ctx.save();
+      ctx.lineWidth=3;
+      ctx.globalAlpha=mode==='all' ? .52 : mode==='selected' ? .78 : 1;
+
+      for(const p of pairs){
+        const sign=p.attractive ? 1 : -1;
+        const ax=sign*p.uX, ay=sign*p.uY;
+        // Uma mesma interação define o MESMO comprimento para as duas setas.
+        // A escala visual é não linear e FIXA: aumentar a intensidade
+        // das cargas aumenta o comprimento das setas na tela.
+        let length=Math.min(86,13+39*Math.sqrt(p.magnitude));
+        if(p.attractive){
+          // Evita que setas de atração ultrapassem a carga parceira.
+          length=Math.min(length,Math.max(4,p.distance*.46-15));
+        }
+        ctx.strokeStyle=p.color;
+        ctx.fillStyle=p.color;
+
+        // Guia pontilhada indica quais cargas formam cada par,
+        // sem sobrecarregar a visualização de 'todos os pares'.
+        if(mode!=='all'){
+          ctx.save();
+          ctx.globalAlpha=.25;
+          ctx.lineWidth=1;
+          ctx.setLineDash([3,7]);
+          ctx.beginPath();
+          ctx.moveTo(p.a.x,p.a.y);
+          ctx.lineTo(p.b.x,p.b.y);
+          ctx.stroke();
+          ctx.restore();
+        }
+        // Força de j sobre i e força de i sobre j: ação e reação.
+        drawForceArrow(p.a,ax,ay,length);
+        drawForceArrow(p.b,-ax,-ay,length);
+      }
+      ctx.restore();
+    }
+
+    function syncForcePartner(){
+      // Preserve a escolha do segundo elemento ao atualizar o canvas.
+      const prev=Number(forcePartner.value);
+      forcePartner.replaceChildren();
+      for(let i=0;i<charges.length;i++){
+        if(i===selected) continue;
+        const option=document.createElement('option');
+        option.value=String(i);
+        option.textContent=`Carga ${i+1} (${charges[i].q>0?'+':'−'})`;
+        forcePartner.appendChild(option);
+      }
+      if(forcePartner.options.length){
+        if(Number.isInteger(prev) && prev>=0 && prev<charges.length && prev!==selected){
+          forcePartner.value=String(prev);
+        } else {
+          forcePartner.selectedIndex=0;
+        }
+      }
+      forcePartner.disabled=forcePartner.options.length===0;
+    }
+
+    function updateForcePanel(){
+      const enabled=forcesInput.checked;
+      forceOptions.hidden=!enabled;
+      forcePartnerRow.hidden=!enabled || forceMode.value!=='pair';
+      if(!enabled) return;
+      const pairs=getForcePairs().map(([i,j])=>forceData(i,j)).filter(Boolean);
+      if(charges.length<2){
+        forceInfo.textContent='Adicione pelo menos duas cargas para observar forças mútuas.';
+      } else if(selected<0 && forceMode.value!=='all'){
+        forceInfo.textContent='Clique em uma carga para visualizar seus pares de forças.';
+      } else if(!pairs.length){
+        forceInfo.textContent='As cargas selecionadas coincidem: a direção da força não está definida.';
+      } else if(forceMode.value==='pair'){
+        const p=pairs[0];
+        const f=p.magnitude.toLocaleString('pt-BR',{maximumFractionDigits:3});
+        forceInfo.textContent=`Cargas ${p.i+1} ↔ ${p.j+1}: ${p.attractive?'atração':'repulsão'}; |F| relativa = ${f} u.a. As forças têm a mesma intensidade e sentidos opostos.`;
+      } else {
+        forceInfo.textContent=`${pairs.length} ${pairs.length===1?'par de forças exibido':'pares de forças exibidos'}. Selecione “Uma carga ↔ outra” para isolar uma interação.`;
+      }
+    }
+
+    function drawCharges(){
+      charges.forEach((c,i)=>{
+        ctx.beginPath();
+        ctx.arc(c.x,c.y,13,0,Math.PI*2);
+        ctx.fillStyle = c.q>0 ? 'rgb(195,65,65)' : 'rgb(65,95,195)';
+        ctx.fill();
+
+        ctx.lineWidth = i===selected ? 4 : 1.5;
+        ctx.strokeStyle = i===selected ? '#2563eb' : '#ffffff';
+        ctx.stroke();
+
+        ctx.fillStyle='white';
+        ctx.font='bold 17px sans-serif';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillText(c.q>0 ? '+' : '−', c.x, c.y+1);
+      });
+
+      ctx.textAlign='start';
+      ctx.textBaseline='alphabetic';
+    }
+
+    function draw(){
+      background();
+      drawPotential();
+      drawVectors();
+      drawLines();
+      drawForces();
+      drawCharges();
+      updateForcePanel();
+    }
+
+    function updateSelected(){
+      if(selected<0 || !charges[selected]){
+        selInfo.textContent='Clique em uma carga.';
+      } else {
+        const c=charges[selected];
+        selInfo.textContent =
+          `Carga ${selected+1} · ${c.q>0?'positiva':'negativa'} · x=${Math.round(c.x)} · y=${Math.round(c.y)}`;
+      }
+      syncForcePartner();
+    }
+
+    function pointerPos(e){
+      const r=canvas.getBoundingClientRect();
+      return {
+        x:(e.clientX-r.left)*W/r.width,
+        y:(e.clientY-r.top)*H/r.height
+      };
+    }
+
+    function hit(x,y){
+      for(let i=charges.length-1;i>=0;i--){
+        if(Math.hypot(x-charges[i].x,y-charges[i].y)<22) return i;
+      }
+      return -1;
+    }
+
+    canvas.addEventListener('pointerdown',e=>{
+      const p=pointerPos(e);
+      drag=hit(p.x,p.y);
+      selected=drag;
+      updateSelected();
+      draw();
+
+      if(drag>=0){
+        canvas.setPointerCapture(e.pointerId);
+        status.textContent='Carga selecionada. Arraste para observar o campo mudar.';
+      }
+    });
+
+    canvas.addEventListener('pointermove',e=>{
+      if(drag<0) return;
+
+      const p=pointerPos(e);
+      charges[drag].x=clamp(p.x,15,W-15);
+      charges[drag].y=clamp(p.y,15,H-15);
+
+      updateSelected();
+      draw();
+    });
+
+    canvas.addEventListener('pointerup',()=>{drag=-1;});
+    canvas.addEventListener('pointercancel',()=>{drag=-1;});
+
+    document.getElementById('addPos').addEventListener('click',()=>{
+      addCharge(W*.45,H*.45,1);
+    });
+
+    document.getElementById('addNeg').addEventListener('click',()=>{
+      addCharge(W*.55,H*.55,-1);
+    });
+
+    document.getElementById('dipole').addEventListener('click',resetDipole);
+    document.getElementById('circlePos').addEventListener('click',circularPositive);
+    document.getElementById('plates').addEventListener('click',plates);
+    document.getElementById('lineCharge').addEventListener('click',lineCharge);
+
+    document.getElementById('clear').addEventListener('click',()=>{
+      charges=[];
+      selected=-1;
+      updateSelected();
+      status.textContent='Todas as cargas foram removidas. Selecione uma configuração para continuar.';
+      draw();
+    });
+
+    document.getElementById('removeSelected').addEventListener('click',()=>{
+      if(selected>=0){
+        charges.splice(selected,1);
+        selected=-1;
+        updateSelected();
+        draw();
+      }
+    });
+
+    document.querySelectorAll('[data-nudge]').forEach(b=>{
+      b.addEventListener('click',()=>{
+        if(selected<0 || !charges[selected]) return;
+
+        const c=charges[selected];
+        const d=12;
+
+        if(b.dataset.nudge==='left') c.x-=d;
+        if(b.dataset.nudge==='right') c.x+=d;
+        if(b.dataset.nudge==='up') c.y-=d;
+        if(b.dataset.nudge==='down') c.y+=d;
+
+        c.x=clamp(c.x,15,W-15);
+        c.y=clamp(c.y,15,H-15);
+
+        updateSelected();
+        draw();
+      });
+    });
+
+    forcesInput.addEventListener('change',()=>{
+      if(forcesInput.checked && selected<0 && charges.length>0){
+        selected=0;
+        updateSelected();
+      }
+      draw();
+    });
+    forceMode.addEventListener('change',draw);
+    forcePartner.addEventListener('change',draw);
+
+    ['vectors','lines','potential'].forEach(id=>{
+      document.getElementById(id).addEventListener('change',draw);
+    });
+
+    document.getElementById('strength').addEventListener('input',e=>{
+      document.getElementById('strengthValue').textContent =
+        Number(e.target.value).toLocaleString('pt-BR',{
+          minimumFractionDigits:1,
+          maximumFractionDigits:1
+        });
+      draw();
+    });
+
+    resetDipole();
+  })();
+  </script>
+</body>
+</html>

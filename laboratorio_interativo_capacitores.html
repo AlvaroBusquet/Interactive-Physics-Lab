@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratório Interativo — Campos em Capacitores</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#080e1b; --panel:#101b2d; --edge:#263b55;
+  --text:#eaf4ff; --muted:#a0b5cb; --cyan:#38d8f5;
+  --orange:#ffbd69; --blue:#68a7ff;
+}
+* {box-sizing:border-box}
+body {margin:0;min-width:320px;background:radial-gradient(ellipse at top,#142a44,#080e1b 75%);font:14px system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text)}
+button, select, input {font:inherit}
+button, select, input[type=range] {cursor:pointer}
+button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible {outline:2px solid var(--cyan);outline-offset:3px}
+header {max-width:1512px;margin:auto;padding:14px 20px 9px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+h1 {font-size:20px;line-height:1.2;letter-spacing:-.45px;margin:0 0 4px}
+header p {color:var(--muted);font-size:12px;margin:0}
+.header-badge {white-space:nowrap;border:1px solid #335770;color:#abd9e9;border-radius:30px;padding:7px 11px;font-size:11px;font-weight:650}
+main {width:min(100%,1512px);margin:auto;padding:7px 16px 12px;display:grid;grid-template-columns:minmax(0,1fr) 352px;grid-template-areas:'stage controls' 'stage visual';gap:12px;align-items:start}
+.panel {border:1px solid var(--edge);border-radius:13px;background:rgba(16,26,43,.94);min-width:0}
+.stage {grid-area:stage;padding:12px 13px}
+.stageTop {display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:0 3px 9px}
+.stageTop h2 {font-size:15px;margin:0;font-weight:750}
+.tag {font-size:11px;color:#a4c3d3}
+.canvasBox {background:#061322;border:1px solid #29415b;border-radius:9px;overflow:hidden}
+canvas {display:block;width:100%;max-width:900px;height:auto;aspect-ratio:900/560;margin:auto;touch-action:manipulation}
+.legend {display:flex;flex-wrap:wrap;gap:8px 18px;color:#abc1d5;font-size:11px;margin:9px 2px 0}
+.sw {display:inline-block;width:15px;height:3px;vertical-align:middle;margin-right:5px}
+.metrics {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:11px}
+.metric {border:1px solid #284158;border-radius:8px;padding:9px 10px;background:#112138;min-width:0}
+.metric .name {font-size:11px;color:#a9c0d7;line-height:1.2}
+.metric .num {font-size:16px;font-weight:750;font-variant-numeric:tabular-nums;margin-top:4px;overflow-wrap:anywhere}
+.model-details {border-top:1px solid var(--edge);margin-top:10px;padding-top:9px}
+.field-status {text-align:right;font-size:11px;font-weight:650;color:#c0dceb;margin-top:6px}
+.toggle:disabled {opacity:.42;cursor:not-allowed}
+.model-details summary {color:#abd7e7;cursor:pointer;font-size:12px;font-weight:650;list-style-position:inside}
+.model-details[open] summary {margin-bottom:8px}
+.notes {color:#c0d2e4;line-height:1.55;margin:5px 0 7px}
+.notes strong {color:#f0faff}
+.formula {font-family:ui-monospace,Consolas,monospace;color:#91f0ea;font-size:12px;padding:9px 11px;background:#0b1b2b;border:1px solid #294059;border-radius:8px;overflow-wrap:anywhere}
+.small {font-size:11px;color:#90a9c1;line-height:1.45}
+.controls {grid-area:controls;padding:12px 15px 13px}
+.control-head {display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.section {margin:0 0 8px;color:#dbefff;font-size:11px;font-weight:800;letter-spacing:.075em;text-transform:uppercase}
+.control-head .section {margin:0}
+.control-head .hint {color:var(--muted);font-size:11px}
+.group {border-top:1px solid #283a52;padding-top:10px;margin-top:10px}
+.group.first {border:0;margin-top:0;padding-top:0}
+.choices {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.choice {min-height:58px;border:1px solid #344660;background:#15263c;color:#dceafd;border-radius:8px;padding:7px 3px;text-align:center;font-size:11px;font-weight:650;line-height:1.22}
+.choice .icon {display:block;font-size:19px;line-height:1.2;margin-bottom:3px}
+.choice.active {border-color:var(--cyan);background:#17445a;color:#fff;box-shadow:inset 0 -3px var(--cyan)}
+.choice:hover, .toggle:hover {filter:brightness(1.16)}
+label {display:flex;justify-content:space-between;gap:8px;margin:0 0 4px;color:#cbd8e8;font-weight:550;font-size:12px}
+.value {font-variant-numeric:tabular-nums;color:var(--cyan);white-space:nowrap;font-weight:700}
+input[type=range] {width:100%;accent-color:var(--cyan);height:17px;margin:0}
+select {width:100%;padding:8px 9px;min-height:35px;border-radius:8px;border:1px solid #344660;background:#14243a;color:#e5f0fc;font-size:12px}
+.slider {margin:9px 0 0}
+label[for=preset] {margin-bottom:4px}
+#geometryhelp {margin:7px 0 0}
+.visual-panel {grid-area:visual;padding:11px 13px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:8px 9px}
+.visual-title {grid-column:1/-1}
+.visual-title .section {margin-bottom:2px}
+.visual-title .small {display:block}
+.toggles {grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.toggle {padding:7px 6px;min-height:39px;border:1px solid #354962;border-radius:8px;background:#14243a;color:#a9bed5;font-size:12px}
+.toggle.active {background:#173b52;color:#eaffff;border-color:#2785a1}
+.visual-panel .slider {margin:0}
+.footer {max-width:1512px;margin:auto;padding:2px 17px 14px;color:#8ba3bc;font-size:11px}
+a {color:#85dbfa}
+@media(max-width:1150px) {
+  main {grid-template-columns:minmax(0,1fr) 316px}
+}
+@media(max-width:840px) {
+  main {grid-template-columns:minmax(0,1fr);grid-template-areas:'stage' 'visual' 'controls';gap:9px}
+  .controls {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 17px}
+  .control-head {grid-column:1/-1;margin-bottom:0}
+  .controls .group {border-top:1px solid #283a52;padding-top:10px;margin-top:0}
+  .visual-panel {grid-template-columns:1fr 1fr;gap:10px}
+  .visual-title {grid-column:1/-1}
+  .toggles {grid-column:1/-1;grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:560px) {
+  header {padding:12px 11px 7px}
+  h1 {font-size:17px}
+  header p {font-size:11px}
+  .header-badge {display:none}
+  main {padding:5px 7px 9px;gap:8px}
+  .stage {padding:8px}
+  .stageTop {margin:2px 2px 7px}
+  .stageTop h2 {font-size:13px}
+  .stageTop .tag {font-size:10px}
+  .metrics {grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .metric {padding:7px}
+  .metric .name {font-size:10px}
+  .metric .num {font-size:14px}
+  .controls {display:block;padding:11px 12px}
+  .controls .group {margin-top:12px}
+  .controls .group.first {border-top:0;padding-top:0;margin-top:10px}
+  .visual-panel {padding:11px;grid-template-columns:1fr 1fr}
+  .toggles {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .footer {padding:4px 11px 13px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Laboratório de Campos Elétricos em Capacitores</h1>
+  <p>Compare campos elétricos, geometria e dielétricos em tempo real.</p></div>
+  <span class="header-badge">Simulação eletrostática · 2 geometrias</span>
+</header>
+<main>
+  <section class="panel stage" aria-label="Visualização e resultados">
+    <div class="stageTop"><h2 id="stagetitle">Capacitor de placas paralelas</h2><span class="tag">Corte esquemático · campo ideal</span></div>
+    <div class="canvasBox"><canvas id="canvas" width="900" height="560" aria-label="Diagrama do capacitor com linhas e vetores do campo elétrico"></canvas></div>
+    <div id="fieldlabel" class="field-status" aria-live="polite">Campo entre as placas: —</div>
+    <div class="legend">
+      <span><i class="sw" style="background:#ffb764"></i>Condutor positivo (+)</span>
+      <span><i class="sw" style="background:#6eacff"></i>Condutor negativo (−)</span>
+      <span><i class="sw" style="background:#45e2e6"></i>Linhas de campo</span>
+      <span><i class="sw" style="background:#e6faff"></i>Vetores E (tamanho indica |E|)</span>
+      <span id="polarval" style="margin-left:auto">Polarização |P|: —</span>
+    </div>
+    <div class="metrics" aria-live="polite">
+      <div class="metric"><div class="name">Capacitância C</div><div class="num" id="mC">—</div></div>
+      <div class="metric"><div class="name">Tensão ΔV</div><div class="num" id="mV">—</div></div>
+      <div class="metric"><div class="name">Carga |Q|</div><div class="num" id="mQ">—</div></div>
+      <div class="metric"><div class="name">Campo E (referência)</div><div class="num" id="mE">—</div></div>
+      <div class="metric"><div class="name">Energia U</div><div class="num" id="mU">—</div></div>
+    </div>
+    <details class="model-details">
+      <summary>Entenda a física · fórmulas e hipóteses</summary>
+      <p class="notes" id="explanation"></p>
+      <div class="formula" id="formula"></div>
+      <p class="small">Modelo didático ideal: dielétrico linear, isotrópico e homogêneo, inteiramente preenchendo o espaço entre os condutores. Efeitos de borda e extremidades desprezados; o desenho é esquemático e não representa uma solução numérica por elementos finitos. As dimensões variam no desenho, mas as escalas da vista em corte são esquemáticas. A densidade de linhas é apenas um ajuste didático. O comprimento das setas varia de forma sublinear com |E| para representar uma ampla faixa de intensidades, sem extrapolar os limites do desenho. O mapa |E| usa cores em escala logarítmica fixa (100 V/m a 1 MV/m). As marcações −/+ junto ao dielétrico representam esquematicamente cargas ligadas de polarização.</p>
+    </details>
+  </section>
+  <aside class="panel controls" aria-label="Parâmetros físicos do capacitor">
+    <div class="control-head"><h2 class="section">Parâmetros físicos</h2><span class="hint">Ajuste e compare</span></div>
+    <div class="group first">
+      <h3 class="section">Geometria</h3>
+      <div class="choices" id="geometry" role="group" aria-label="Geometria do capacitor">
+        <button type="button" class="choice active" data-g="parallel" aria-pressed="true"><span class="icon">▥</span>Paralelas</button>
+        <button type="button" class="choice" data-g="cylinder" aria-pressed="false"><span class="icon">◎</span>Cilíndricas coaxiais</button>
+      </div>
+    </div>
+    <div class="group">
+      <h3 class="section">Condição elétrica</h3>
+      <select id="mode" aria-label="Condição elétrica"><option value="voltage">Tensão fixa (conectado à fonte)</option><option value="charge">Carga fixa (isolado)</option></select>
+      <div class="slider"><label for="excite"><span id="excitelabel">Diferença de potencial</span><span class="value" id="exciteval"></span></label><input id="excite" type="range" min="10" max="500" step="10" value="100"></div>
+    </div>
+    <div class="group">
+      <h3 class="section">Material isolante</h3>
+      <label for="preset">Dielétrico</label>
+      <select id="preset"><option value="1">Vácuo (εᵣ = 1)</option><option value="1.0006">Ar (εᵣ ≈ 1,0006)</option><option value="2.1">PTFE / Teflon (εᵣ ≈ 2,1)</option><option value="3.7">Papel (εᵣ ≈ 3,7)</option><option value="5.6">Vidro Pyrex (εᵣ ≈ 5,6)</option><option value="custom">Personalizado</option></select>
+      <div class="slider"><label for="eps"><span>Permissividade relativa, εᵣ</span><span class="value" id="epsval"></span></label><input id="eps" type="range" min="1" max="20" step="0.1" value="1"></div>
+    </div>
+    <div class="group">
+      <h3 class="section">Dimensões físicas</h3>
+      <div class="slider"><label for="gap"><span id="gaplabel">Separação d</span><span class="value" id="gapval"></span></label><input id="gap" type="range" min="2" max="20" step="1" value="8"></div>
+      <div class="slider"><label for="extent"><span id="extentlabel">Lado da placa</span><span class="value" id="extentval"></span></label><input id="extent" type="range" min="20" max="100" step="5" value="60"></div>
+      <p class="small" id="geometryhelp"></p>
+    </div>
+  </aside>
+  <section class="panel visual-panel" aria-label="Opções de visualização">
+    <div class="visual-title"><h2 class="section">Visualização</h2><span class="small" id="visualhint">Com tensão fixa, εᵣ altera a polarização, mas não |E|.</span></div>
+    <div class="toggles">
+      <button type="button" class="toggle active" id="lines" aria-pressed="true">Linhas de campo</button>
+      <button type="button" class="toggle active" id="vectors" aria-pressed="true">Vetores E</button>
+      <button type="button" class="toggle" id="heat" aria-pressed="false">Mapa |E|</button>
+      <button type="button" class="toggle active" id="arrows" aria-pressed="true">Setas nas linhas</button>
+    </div>
+    <div class="slider"><label for="density"><span>Densidade</span><span class="value" id="densityval">12</span></label><input id="density" type="range" min="5" max="22" step="1" value="12"></div>
+    <div class="slider"><label for="scale"><span>Escala dos vetores</span><span class="value" id="scaleval">1,0×</span></label><input id="scale" type="range" min="0.5" max="3" step="0.1" value="1"></div>
+  </section>
+</main>
+<footer class="footer">Referências: <a href="https://openstax.org/books/university-physics-volume-2/pages/8-1-capacitors-and-capacitance" target="_blank" rel="noopener">OpenStax — capacitores</a> · <a href="https://openstax.org/books/university-physics-volume-2/pages/8-key-equations" target="_blank" rel="noopener">Equações fundamentais</a> · <a href="https://openlearninglibrary.mit.edu/assets/courseware/v1/91d812aee7f8e5bb80a7ebaee9201997/asset-v1%3AMITx%2B8.02.1x%2B1T2019%2Btype%40asset%2Bblock/textbook_Chapter_5_small.pdf" target="_blank" rel="noopener">MIT — capacitância e dielétricos</a>.</footer>
+<script>
+(()=>{
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const canvas = $('canvas');
+  const ctx = canvas.getContext('2d');
+  const EPS0 = 8.8541878128e-12;
+  const TAU = Math.PI * 2;
+  const state = {
+    geometry: 'parallel', mode: 'voltage', eps: 1,
+    gap: 8, side: 60, innerRadius: 10, length: 60,
+    voltage: 100, chargeNC: 0.4,
+    lines: true, vectors: true, heat: false, arrows: true,
+    density: 12, scale: 1
+  };
+  const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+  const fmt = (x, digits=2) => Number(x).toLocaleString('pt-BR', {
+    maximumFractionDigits: digits,
+    minimumFractionDigits: 0
+  });
+  function eng(value, unit) {
+    if (!Number.isFinite(value)) return '—';
+    if (value === 0) return '0 ' + unit;
+    const powers = [[-12,'p'],[-9,'n'],[-6,'µ'],[-3,'m'],[0,''],[3,'k'],[6,'M'],[9,'G']];
+    let chosen = powers[0];
+    for (const entry of powers) if (Math.abs(value) >= 10**entry[0]) chosen = entry;
+    return fmt(value / 10**chosen[0], 3) + ' ' + chosen[1] + unit;
+  }
+  function physics() {
+    const eps = EPS0 * state.eps;
+    const d = state.gap * 1e-3;
+    const a = state.innerRadius * 1e-3;
+    const b = a + d;
+    const side = state.side * 1e-3;
+    const L = state.length * 1e-3;
+    const coax = state.geometry === 'cylinder';
+    const C = coax ? TAU * eps * L / Math.log(b/a) : eps * side * side / d;
+    const Q = state.mode === 'charge' ? state.chargeNC * 1e-9 : C * state.voltage;
+    const V = state.mode === 'charge' ? Q/C : state.voltage;
+    const fieldAt = radius => coax ? V / (radius * Math.log(b/a)) : V/d;
+    const E0 = fieldAt(a);
+    const P = EPS0 * (state.eps - 1) * E0;
+    return {C, Q, V, E0, P, U:Q*V/2, a,b,L,d, side, fieldAt};
+  }
+  function chargeToPosition(qNC) { return clamp((Math.log10(Math.max(.01,qNC)) + 2) / .04,0,100); }
+  function positionToCharge(u) { return 10**(-2 + .04*u); } // 0,01 a 100 nC (escala log)
+  function setupExcitation() {
+    const el = $('excite');
+    if (state.mode === 'voltage') {
+      el.min='10';el.max='500';el.step='10';el.value=String(state.voltage);
+    } else {
+      el.min='0';el.max='100';el.step='.1';el.value=String(chargeToPosition(state.chargeNC));
+    }
+  }
+  function setupDimensions() {
+    const el=$('extent');
+    if(state.geometry==='parallel') {
+      el.min='20';el.max='100';el.step='5';el.value=String(state.side);
+    } else {
+      el.min='5';el.max='30';el.step='1';el.value=String(state.innerRadius);
+    }
+  }
+  function updateUI(p) {
+    const coax=state.geometry==='cylinder';
+    $('stagetitle').textContent=coax?'Capacitor cilíndrico coaxial':'Capacitor de placas paralelas';
+    $('mode').value=state.mode;
+    $('epsval').textContent=fmt(state.eps,4);
+    $('gapval').textContent=state.gap+' mm';
+    $('extentval').textContent=(coax?state.innerRadius:state.side)+' mm';
+    $('densityval').textContent=state.density;
+    $('scaleval').textContent=fmt(state.scale,1)+'×';
+    $('excitelabel').textContent=state.mode==='voltage'?'Diferença de potencial ΔV':'Carga fixa |Q| (escala log.)';
+    $('exciteval').textContent=state.mode==='voltage'?fmt(state.voltage,0)+' V':eng(state.chargeNC*1e-9,'C');
+    $('gaplabel').textContent=coax?'Espessura radial (b − a)':'Separação d';
+    $('extentlabel').textContent=coax?'Raio interno a':'Lado da placa';
+    $('geometryhelp').textContent=coax
+      ? 'Vista em corte: raio externo b = a + d. Comprimento L = 60 mm (fixo).'
+      : 'Vista em corte: área A = lado²; o ajuste do lado muda a altura desenhada.';
+    $('mC').textContent=eng(p.C,'F');
+    $('mV').textContent=eng(p.V,'V');
+    $('mQ').textContent=eng(p.Q,'C');
+    $('mE').textContent=eng(p.E0,'V/m');
+    $('mU').textContent=eng(p.U,'J');
+    $('polarval').textContent='Polarização |P|: '+eng(p.P,'C/m²');
+    $('visualhint').textContent=state.mode==='voltage'
+      ? 'Com tensão fixa, εᵣ altera a polarização, mas não |E|.'
+      : 'Com carga fixa, εᵣ reduz |E| e ΔV: observe os vetores e o mapa.';
+    $('fieldlabel').textContent='|E| '+(coax?'em r = a':'entre as placas')+': '+eng(p.E0,'V/m');
+    $('explanation').textContent=(coax
+      ? 'Modelo coaxial: o campo é radial e sua intensidade diminui com a distância ao eixo (1/r).'
+      : 'Modelo de placas extensas: o campo é uniforme e perpendicular às placas.')+' '
+      +(state.mode==='voltage'
+        ? 'A fonte mantém ΔV: mudar εᵣ altera C, Q e a polarização, mas não modifica |E|. Esse comportamento é físico, não uma falha do controle.'
+        : 'O capacitor está isolado: |Q| permanece constante quando você altera εᵣ ou a geometria. O campo e a tensão se ajustam.');
+    $('formula').textContent=coax
+      ? 'C = 2π ε₀ εᵣ L / ln(b/a)    ·    |E(r)| = ΔV / [r ln(b/a)]    ·    b = a + d'
+      : 'C = ε₀ εᵣ A/d    ·    |E| = ΔV/d    ·    A = lado²';
+    $('arrows').disabled=!state.lines;
+    $('arrows').title=!state.lines?'Ative as linhas de campo para exibir setas nas linhas.':'';
+    for(const id of ['lines','vectors','heat','arrows']) {
+      $(id).classList.toggle('active',state[id]);
+      $(id).setAttribute('aria-pressed',String(state[id]));
+    }
+    for(const b of $('geometry').querySelectorAll('[data-g]')) {
+      const selected=b.dataset.g===state.geometry;
+      b.classList.toggle('active',selected);
+      b.setAttribute('aria-pressed',String(selected));
+    }
+  }
+  function line(x1,y1,x2,y2,color,width=1) {
+    ctx.strokeStyle=color;ctx.lineWidth=width;
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  }
+  function arrow(x,y,dx,dy,color,size=8,width=1.7) {
+    const len=Math.hypot(dx,dy);
+    if(len<1)return;
+    const ux=dx/len,uy=dy/len;
+    line(x-dx*.5,y-dy*.5,x+dx*.5,y+dy*.5,color,width);
+    const tx=x+dx*.5,ty=y+dy*.5,head=Math.min(size,Math.max(2.8,len*.37));
+    ctx.beginPath();ctx.moveTo(tx,ty);
+    ctx.lineTo(tx-ux*head-uy*head*.48,ty-uy*head+ux*head*.48);
+    ctx.lineTo(tx-ux*head+uy*head*.48,ty-uy*head-ux*head*.48);
+    ctx.closePath();ctx.fillStyle=color;ctx.fill();
+  }
+  function label(txt,x,y,color='#d9edff',font='15px system-ui',align='left') {
+    ctx.fillStyle=color;ctx.font=font;ctx.textAlign=align;ctx.fillText(txt,x,y);ctx.textAlign='left';
+  }
+  function background() {
+    ctx.fillStyle='#061322';ctx.fillRect(0,0,900,560);
+    for(let x=20;x<900;x+=32)line(x,0,x,560,'rgba(92,151,185,.07)');
+    for(let y=12;y<560;y+=32)line(0,y,900,y,'rgba(92,151,185,.07)');
+  }
+  const palette=[[15,40,97],[27,136,184],[58,213,209],[249,205,102],[255,99,71]];
+  function colorOfField(E) {
+    // Escala fixa logarítmica 100 a 1.000.000 V/m; comparável entre ajustes.
+    const t=clamp((Math.log10(Math.max(100,E))-2)/4,0,1);
+    const v=t*4,i=Math.min(3,Math.floor(v)),f=v-i;
+    const a=palette[i],b=palette[i+1];
+    return 'rgb('+a.map((c,j)=>Math.round(c+(b[j]-c)*f)).join(',')+')';
+  }
+  function magnitudeArrow(E,cell) {
+    // Escala de campo absoluta, logarítmica e suave: o ajuste de tamanho
+    // continua tendo efeito, mesmo para campos muito intensos.
+    const relative=Math.log1p(Math.max(0,E)/1800)/Math.log1p(12500/1800);
+    const available=Math.min(66,Math.max(8,cell*.93));
+    return Math.max(3.2,available*(1-Math.exp(-.65*state.scale*relative)));
+  }
+  function heatLegend() {
+    if(!state.heat)return;
+    const x=21,y=17,w=232,h=10;
+    for(let i=0;i<w;i+=2) {
+      const E=10**(2+4*i/w);
+      ctx.fillStyle=colorOfField(E);ctx.fillRect(x+i,y,2,h);
+    }
+    ctx.strokeStyle='#6b8fa9';ctx.lineWidth=.8;ctx.strokeRect(x,y,w,h);
+    label('100 V/m',x,y+24,'#bed6e9','11px system-ui');
+    label('1 MV/m',x+w,y+24,'#bed6e9','11px system-ui','right');
+    label('Mapa |E| · escala log. fixa',x+118,y+41,'#d8f3ff','11px system-ui','center');
+  }
+  function dielectricColor() {
+    return 'rgba(45,173,200,'+(.035+.11*(state.eps-1)/19)+')';
+  }
+  function chargeMarkersParallel(x1,x2,y1,y2) {
+    if(state.eps<1.05)return;
+    // Cargas ligadas: σb negativa na interface junto à placa positiva, positiva na oposta.
+    const amount=clamp((state.eps-1)/9,0,1);
+    const n=Math.round(3+12*Math.sqrt(amount));
+    ctx.font='bold 17px system-ui';ctx.textAlign='center';
+    for(let i=0;i<n;i++) {
+      const y=y1+13+(y2-y1-26)*(i+.5)/n;
+      label('−',x1+18,y+5,'rgba(112,178,255,.9)','bold 17px system-ui','center');
+      label('+',x2-18,y+5,'rgba(255,192,105,.95)','bold 17px system-ui','center');
+    }
+    ctx.textAlign='left';
+  }
+  function drawParallel(p) {
+    const centerX=450,centerY=278;
+    const width=110+15*state.gap;    // d: 2–20 mm -> 140–410 px
+    const height=115+3.3*state.side; // lado: 20–100 mm -> 181–445 px
+    const x1=centerX-width/2,x2=centerX+width/2;
+    const y1=centerY-height/2,y2=centerY+height/2;
+    ctx.fillStyle=dielectricColor();ctx.fillRect(x1+3,y1,width-6,height);
+    if(state.heat) {
+      ctx.fillStyle=colorOfField(p.E0);
+      ctx.globalAlpha=.83;ctx.fillRect(x1+4,y1,width-8,height);ctx.globalAlpha=1;
+    }
+    if(state.lines)for(let i=0;i<state.density;i++) {
+      const y=y1+9+(height-18)*(i+.5)/state.density;
+      line(x1+7,y,x2-7,y,'rgba(60,241,242,.85)',1.55);
+      if(state.arrows) {
+        const ax=x1+width*.52;
+        arrow(ax,y,20,0,'#36f5f6',9,1.9);
+      }
+    }
+    if(state.vectors) {
+      const columns=clamp(Math.round(2+state.density/5),3,7);
+      const rows=clamp(Math.round(2+state.density/3),3,9);
+      const xStep=(width-32)/columns,yStep=(height-27)/rows;
+      const len=magnitudeArrow(p.E0,xStep);
+      const opacity=clamp(.34+.45*Math.sqrt(p.E0/12500),.34,.96);
+      for(let i=0;i<columns;i++)for(let j=0;j<rows;j++) {
+        const x=x1+16+xStep*(i+.5),y=y1+13+yStep*(j+.5);
+        arrow(x,y,len,0,'rgba(243,250,255,'+opacity+')',8,2.35);
+      }
+    }
+    chargeMarkersParallel(x1,x2,y1,y2);
+    ctx.fillStyle='#ffb764';ctx.fillRect(x1-13,y1,13,height);
+    ctx.fillStyle='#6eacff';ctx.fillRect(x2,y1,13,height);
+    line(x1-14,y1,x1-14,y2,'#ffe0a6',3);
+    line(x2+14,y1,x2+14,y2,'#b5daff',3);
+    label('+',x1-43,centerY+8,'#ffc782','bold 29px system-ui','center');
+    label('−',x2+39,centerY+8,'#85b8ff','bold 29px system-ui','center');
+    label('εᵣ = '+fmt(state.eps,4),centerX,Math.max(34,y1-15),'#c0f5fa','bold 16px system-ui','center');
+    const bottom=Math.min(527,y2+33);
+    line(x1,bottom-14,x1,bottom-3,'#8faabc');line(x2,bottom-14,x2,bottom-3,'#8faabc');
+    line(x1+4,bottom-9,x2-4,bottom-9,'#8faabc');
+    label('d = '+state.gap+' mm',centerX,bottom+14,'#c1d9ec','14px system-ui','center');
+    const left=Math.max(40,x1-80);
+    line(left,y1,left,y2,'rgba(143,170,188,.72)');
+    line(left-5,y1,left+5,y1,'#8faabc');line(left-5,y2,left+5,y2,'#8faabc');
+    label('lado',left-10,centerY-10,'#b9d5e8','12px system-ui','right');
+    label(state.side+' mm',left-10,centerY+9,'#b9d5e8','12px system-ui','right');
+  }
+  function drawRing(cx,cy,r1,r2,color) {
+    if(r2<=r1)return;
+    ctx.beginPath();ctx.arc(cx,cy,r2,0,TAU);
+    ctx.arc(cx,cy,r1,TAU,0,true);
+    ctx.closePath();ctx.fillStyle=color;ctx.fill('evenodd');
+  }
+  function radialMarker(cx,cy,r,angle,char,color) {
+    label(char,cx+r*Math.cos(angle),cy+r*Math.sin(angle)+4,color,'bold 15px system-ui','center');
+  }
+  function chargeMarkersCoax(cx,cy,inner,outer) {
+    if(state.eps<1.05)return;
+    const amount=clamp((state.eps-1)/9,0,1);
+    const count=Math.round(6+12*Math.sqrt(amount));
+    const gapPx=outer-inner;
+    if(gapPx<24) return; // A camada é mais fina do que duas letras; não sobrepor.
+    const inset=clamp(gapPx*.19,7,14);
+    for(let i=0;i<count;i++) {
+      const angle=-Math.PI/2+TAU*(i+.5)/count;
+      radialMarker(cx,cy,inner+inset,angle,'−','#89baff');
+      radialMarker(cx,cy,outer-inset,angle,'+','#ffc27a');
+    }
+  }
+  function drawCoax(p) {
+    const cx=450,cy=280;
+    const aMM=state.innerRadius,bMM=aMM+state.gap;
+    const outer=140+(bMM-7)*2.35;
+    const inner=outer*aMM/bMM; // raios preservam sua proporção geométrica.
+    const band=outer-inner;
+    drawRing(cx,cy,inner,outer,dielectricColor());
+    if(state.heat) {
+      for(let r=inner;r<outer;r+=2) {
+        const rNext=Math.min(outer,r+2.3);
+        const realRadius=p.a+(p.b-p.a)*(r-inner)/Math.max(1,band);
+        drawRing(cx,cy,r,rNext,colorOfField(p.fieldAt(realRadius)));
+      }
+    }
+    const n=Math.round(state.density*1.4);
+    if(state.lines) for(let i=0;i<n;i++) {
+      const angle=-Math.PI/2+TAU*i/n;
+      const co=Math.cos(angle),si=Math.sin(angle);
+      line(cx+(inner+3)*co,cy+(inner+3)*si,cx+(outer-3)*co,cy+(outer-3)*si,'rgba(59,238,242,.88)',1.65);
+      if(state.arrows) {
+        const ar=(inner+outer)/2;
+        arrow(cx+ar*co,cy+ar*si,Math.min(18,band*.62)*co,Math.min(18,band*.62)*si,'#36f5f6',8,2);
+      }
+    }
+    if(state.vectors) {
+      const angles=clamp(Math.round(6+state.density*1.1),10,30);
+      const layers=band<32?1:band<75?2:3;
+      const pitch=band/(layers+1);
+      for(let j=0;j<layers;j++)for(let i=0;i<angles;i++) {
+        const r=inner+pitch*(j+1);
+        const angle=TAU*(i+.3*(j%2))/angles,co=Math.cos(angle),si=Math.sin(angle);
+        const realRadius=p.a+(p.b-p.a)*(r-inner)/band;
+        const E=p.fieldAt(realRadius);
+        const len=magnitudeArrow(E,Math.max(7,Math.min(pitch*2,35)));
+        const opacity=clamp(.32+.5*Math.sqrt(E/12500),.32,.96);
+        arrow(cx+r*co,cy+r*si,len*co,len*si,'rgba(245,252,255,'+opacity+')',7,2.15);
+      }
+    }
+    chargeMarkersCoax(cx,cy,inner,outer);
+    ctx.fillStyle='#ffbc70';ctx.beginPath();ctx.arc(cx,cy,inner,0,TAU);ctx.fill();
+    ctx.strokeStyle='#ffdfac';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,inner,0,TAU);ctx.stroke();
+    ctx.strokeStyle='#71aeff';ctx.lineWidth=12;ctx.beginPath();ctx.arc(cx,cy,outer,0,TAU);ctx.stroke();
+    ctx.strokeStyle='#c4deff';ctx.lineWidth=1.8;ctx.beginPath();ctx.arc(cx,cy,outer+5,0,TAU);ctx.stroke();
+    label('+',cx,cy+10,'#68451b','bold 30px system-ui','center');
+    label('−',cx+outer+24,cy+6,'#96c4ff','bold 27px system-ui','center');
+    label('εᵣ = '+fmt(state.eps,4),cx,34,'#bbf0f7','bold 16px system-ui','center');
+    label('a = '+aMM+' mm',cx,cy+inner*.57,'#553718','bold 13px system-ui','center');
+    if(outer>208) {
+      label('b = '+bMM+' mm',710,79,'#c4dcf1','14px system-ui');
+      label('b − a = '+state.gap+' mm',710,100,'#c4dcf1','12px system-ui');
+    } else {
+      label('b = '+bMM+' mm',cx,cy+outer+23,'#c4dcf1','14px system-ui','center');
+      label('Espessura b − a = '+state.gap+' mm',cx,cy+outer+43,'#c4dcf1','12px system-ui','center');
+    }
+    label('Corte transversal · comprimento L = 60 mm (fixo)',19,532,'#a6bed5','13px system-ui');
+  }
+  function drawPolarizationHint(p) {
+    if(state.eps>1.05) {
+      label('−  +  Cargas ligadas de polarização',660,532,'#b9cfdf','11px system-ui');
+    }
+  }
+  function render() {
+    const p=physics();updateUI(p);background();
+    if(state.geometry==='parallel')drawParallel(p);
+    else drawCoax(p);
+    heatLegend();drawPolarizationHint(p);
+  }
+  $('geometry').addEventListener('click',event=>{
+    const button=event.target.closest('[data-g]');if(!button)return;
+    if(!['parallel','cylinder'].includes(button.dataset.g))return;
+    state.geometry=button.dataset.g;
+    setupDimensions();render();
+  });
+  $('mode').addEventListener('change',()=>{
+    if($('mode').value==='charge' && state.mode==='voltage') {
+      state.chargeNC=physics().Q*1e9; // Preserva exatamente a carga atual ao desconectar a fonte.
+      state.mode='charge';
+    } else if($('mode').value==='voltage' && state.mode==='charge') {
+      state.mode='voltage'; // Reconectar a fonte restaura a tensão definida anteriormente.
+    }
+    setupExcitation();render();
+  });
+  $('excite').addEventListener('input',()=>{
+    if(state.mode==='voltage') state.voltage=Number($('excite').value);
+    else state.chargeNC=positionToCharge(Number($('excite').value));
+    render();
+  });
+  $('eps').addEventListener('input',()=>{
+    state.eps=Number($('eps').value);
+    $('preset').value='custom';render();
+  });
+  $('preset').addEventListener('change',()=>{
+    if($('preset').value==='custom')return;
+    state.eps=Number($('preset').value);
+    $('eps').value=String(state.eps);render();
+  });
+  $('gap').addEventListener('input',()=>{state.gap=Number($('gap').value);render();});
+  $('extent').addEventListener('input',()=>{
+    if(state.geometry==='parallel')state.side=Number($('extent').value);
+    else state.innerRadius=Number($('extent').value);
+    render();
+  });
+  $('density').addEventListener('input',()=>{state.density=Number($('density').value);render();});
+  $('scale').addEventListener('input',()=>{state.scale=Number($('scale').value);render();});
+  for(const id of ['lines','vectors','heat','arrows']){
+    $(id).addEventListener('click',()=>{if($(id).disabled)return;state[id]=!state[id];render();});
+  }
+  setupExcitation();setupDimensions();render();
+  // Apenas para facilitar testes locais de consistência física e visual.
+  window.__capacitorTest = {physics, state};
+})();
+</script></body></html>

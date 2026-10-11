@@ -1,0 +1,48 @@
+# Documentos de uso privado (não publicar no repositório)
+INSTRUCOES_PRIVADAS_PUBLICACAO.md
+
+# Arquivos locais de configuração e segredos
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+
+# Arquivos temporários, backups e logs
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+*.orig
+
+# Sistemas operacionais
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# Dependências e caches (se forem adicionadas ferramentas JS/Python)
+node_modules/
+.npm/
+.cache/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Arquivos de teste e cobertura gerados
+coverage/
+.nyc_output/
+
+# NOTA: arquivos HTML, CSS, JS, imagens, README.md, LICENSE e
+# arquivos usados pelo GitHub Pages devem ser versionados normalmente.
