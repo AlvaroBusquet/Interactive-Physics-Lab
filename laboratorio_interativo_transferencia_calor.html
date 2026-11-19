@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Ferramenta interativa para explorar condução, convecção e irradiação térmica.">
+<title>Transferência de Calor — Três mecanismos</title>
+<style>
+:root{
+  --ink:#3b2119;--muted:#80665a;--line:#efd7c7;--paper:#fffdf9;--bg:#fff7f0;
+  --blue:#cf432c;--blue-light:#fff0d9;--orange:#e66a2e;--orange-light:#fff0e8;
+  --green:#b87522;--radius:18px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+.page{max-width:1180px;margin:0 auto;padding:28px 20px 22px}
+header{margin-bottom:20px}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.76rem;font-weight:800;color:var(--blue);margin:0 0 6px}
+h1{font-size:clamp(1.8rem,3vw,2.55rem);line-height:1.12;letter-spacing:-.035em;margin:0 0 9px}
+.intro{color:var(--muted);max-width:760px;margin:0}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:22px 0 14px}
+.tab{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px 14px;text-align:left;cursor:pointer;color:var(--ink);font:inherit;display:flex;align-items:center;gap:11px;min-height:66px;transition:border-color .15s,background .15s}
+.tab:hover{border-color:#e7b08a}
+.tab[aria-selected="true"]{border-color:var(--blue);background:var(--blue-light);box-shadow:inset 0 0 0 1px var(--blue)}
+.tab .num{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:#fff0d9;font-weight:800;color:#6d4334}
+.tab[aria-selected="true"] .num{background:var(--blue);color:#fff}
+.tab strong{display:block;font-size:1rem}
+.tab small{display:block;color:var(--muted);font-size:.78rem}
+.workspace{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.85fr);gap:16px;align-items:stretch}
+.visual-card,.control-card,.concept-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius)}
+.visual-card{overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.visual-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:16px 18px 0}
+.visual-head h2{font-size:1.08rem;margin:0}
+.badge{font-size:.75rem;font-weight:750;border-radius:999px;padding:5px 9px;background:#fff0d9;color:#7a5949;white-space:nowrap}
+canvas{display:block;width:100%;height:auto;aspect-ratio:1.48/1;min-height:280px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;padding:0 18px 16px;color:var(--muted);font-size:.8rem}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.control-card{padding:18px;min-width:0}
+.control-card h2{font-size:1.08rem;margin:0 0 4px}
+.control-sub{color:var(--muted);font-size:.87rem;margin:0 0 15px}
+.control-list{display:grid;gap:14px}
+.field label,.field .label-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline;font-size:.88rem;font-weight:700;margin-bottom:6px}
+.field output{font-variant-numeric:tabular-nums;color:var(--blue);font-weight:800}
+input[type=range]{width:100%;accent-color:var(--blue);cursor:pointer;margin:2px 0}
+select{width:100%;border:1px solid #e8cdbb;border-radius:10px;padding:10px 11px;background:#fff;color:var(--ink);font:inherit;font-size:.92rem}
+.range-hints{display:flex;justify-content:space-between;color:#96796c;font-size:.72rem;margin-top:-2px}
+.result{margin-top:17px;border-radius:14px;background:#fff4df;padding:14px}
+.result-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.result-label{font-size:.78rem;color:var(--muted);font-weight:750;text-transform:uppercase;letter-spacing:.06em}
+.result-value{font-size:1.45rem;font-weight:850;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.formula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.86rem;margin:8px 0 4px;color:#7b3a29;overflow-wrap:anywhere}
+.direction{font-size:.82rem;color:var(--muted);margin:0}
+.concept-card{margin-top:16px;padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.concept-card h2{font-size:1.03rem;margin:0 0 6px}
+.concept-card p{margin:0;color:var(--muted);font-size:.9rem}
+.concept-card ul{margin:0;padding-left:18px;color:var(--muted);font-size:.88rem}
+.concept-card li+li{margin-top:4px}
+.note{margin-top:15px;border-left:3px solid #e5a04a;padding:9px 12px;color:var(--muted);font-size:.84rem;background:#fff4df;border-radius:0 8px 8px 0}
+ .notes-block{display:grid;gap:10px;margin-top:16px}
+.notes{margin:0;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#fffdf9;color:var(--muted);font-size:.84rem}
+.notes strong,.project-note strong{color:var(--ink)}
+.project-note{margin:0;padding:14px 15px;border:1px solid #efc27d;border-radius:12px;background:#fff1d6;color:#75513d;font-size:.84rem}
+.project-note a{color:#b33d28;font-weight:750;text-decoration:none}
+.project-note a:hover{text-decoration:underline}
+footer{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#8b7164;font-size:.78rem;padding:20px 0 4px}
+footer a{color:var(--blue);text-decoration:none}
+footer a:hover{text-decoration:underline}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #efb04a;outline-offset:2px}
+@media(max-width:800px){.workspace{grid-template-columns:1fr}.control-card{order:2}.visual-card{order:1}.concept-card{grid-template-columns:1fr;gap:14px}}
+@media(max-width:520px){.page{padding:20px 12px}.tabs{gap:6px}.tab{padding:10px 7px;display:block;text-align:center}.tab .num{margin:0 auto 6px}.tab small{display:none}.tab strong{font-size:.83rem}.visual-head{padding:13px 13px 0}canvas{min-height:230px}.legend{padding:0 13px 13px;gap:9px}.control-card{padding:15px}.concept-card{padding:15px}.notes{font-size:.8rem;padding:11px}.project-note{font-size:.8rem;padding:11px}footer{align-items:flex-start;flex-direction:column;font-size:10px;gap:5px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page" id="heatApp">
+  <header>
+    <p class="eyebrow">Laboratório interativo · Transferência de Calor</p>
+    <h1>Três mecanismos de transferência de calor</h1>
+    <p class="intro">Explore como a energia térmica passa de uma região mais quente para outra mais fria por <strong>condução</strong>, <strong>convecção</strong> e <strong>irradiação</strong>. Selecione um mecanismo e altere os parâmetros para observar o que muda.</p>
+  </header>
+
+  <nav class="tabs" aria-label="Mecanismos de transferência de calor" role="tablist">
+    <button class="tab" type="button" role="tab" id="tab-conducao" aria-selected="true" aria-controls="mechanism-panel" data-mode="conducao">
+      <span class="num">1</span><span><strong>Condução</strong><small>Energia em um material</small></span>
+    </button>
+    <button class="tab" type="button" role="tab" id="tab-conveccao" aria-selected="false" aria-controls="mechanism-panel" data-mode="conveccao">
+      <span class="num">2</span><span><strong>Convecção</strong><small>Movimento de um fluido</small></span>
+    </button>
+    <button class="tab" type="button" role="tab" id="tab-radiacao" aria-selected="false" aria-controls="mechanism-panel" data-mode="radiacao">
+      <span class="num">3</span><span><strong>Irradiação</strong><small>Ondas eletromagnéticas</small></span>
+    </button>
+  </nav>
+
+  <section class="workspace" id="mechanism-panel" role="tabpanel" aria-labelledby="tab-conducao">
+    <section class="visual-card" aria-label="Visualização animada do mecanismo selecionado">
+      <div class="visual-head">
+        <h2 id="visualTitle">Condução em uma barra sólida</h2>
+        <span class="badge" id="visualBadge">Sem transporte macroscópico</span>
+      </div>
+      <canvas id="heatCanvas" width="760" height="510" role="img" aria-label="Animação esquemática do mecanismo de transferência de calor selecionado."></canvas>
+      <div class="legend" id="legend">
+        <span><i class="dot" style="background:#d94b2f"></i> Região quente</span>
+        <span><i class="dot" style="background:#f2bd4f"></i> Região fria</span>
+        <span>→ Fluxo líquido de calor</span>
+      </div>
+    </section>
+
+    <aside class="control-card" aria-label="Controles e resultados">
+      <h2 id="controlTitle">Ajuste a condução</h2>
+      <p class="control-sub" id="controlDescription">Compare materiais e temperaturas mantendo o comprimento da barra fixo.</p>
+      <div class="control-list" id="controls"></div>
+      <div class="result" aria-live="polite">
+        <div class="result-top"><span class="result-label">Fluxo de calor por área</span><output class="result-value" id="fluxValue">—</output></div>
+        <div class="formula" id="formula">q″ = k (Tquente − Tfria) / L</div>
+        <p class="direction" id="directionText">Estimativa para as condições escolhidas.</p>
+      </div>
+    </aside>
+  </section>
+
+  <section class="concept-card">
+    <div>
+      <h2 id="conceptTitle">O que está acontecendo?</h2>
+      <p id="conceptText">A energia é transferida por interações microscópicas entre partículas e, nos metais, também por elétrons livres. O material não precisa se deslocar como um todo.</p>
+      <div class="note" id="conceptNote">Modelo didático: a animação é esquemática e não representa a escala real das partículas.</div>
+    </div>
+    <div>
+      <h2>Como distinguir os mecanismos</h2>
+      <ul id="keyPoints">
+        <li>O calor flui devido a uma diferença de temperatura.</li>
+        <li>Na condução, não há movimento macroscópico necessário do material.</li>
+        <li>Condução, convecção e irradiação podem ocorrer simultaneamente em um mesmo sistema.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="notes-block" aria-label="Notas e limitações do modelo">
+    <p class="notes"><strong>Como interpretar:</strong> as partículas, o movimento do fluido e as ondas são representações esquemáticas. A animação tem finalidade didática e não reproduz a dinâmica microscópica real. A velocidade visual é escalada com o módulo do fluxo de calor calculado; ela não representa o tempo físico real dos processos.</p>
+    <p class="notes"><strong>Modelo físico:</strong> a condução é estimada pela lei de Fourier em uma barra plana de comprimento fixo; a convecção usa a lei do resfriamento de Newton com coeficiente convectivo definido pelo usuário; e a irradiação usa a lei de Stefan–Boltzmann para uma superfície cinzenta trocando calor com um entorno uniforme, com fator de vista igual a 1. Os mecanismos são tratados separadamente e não formam uma simulação transiente acoplada. Geometrias reais, resistências de contato, propriedades variáveis e condições de contorno complexas não são modeladas.</p>
+    <p class="project-note"><strong>Nota sobre o projeto:</strong> esta ferramenta tem finalidade didática e pode conter <em>bugs</em>, limitações ou erros de implementação e de modelagem. Os resultados devem ser interpretados com cautela. O projeto é aberto a contribuições: sugestões, correções e propostas de melhoria podem ser enviadas pelo <a href="https://github.com/AlvaroBusquet/" target="_blank" rel="noopener noreferrer">GitHub ↗</a>.</p>
+  </section>
+  <footer>
+    <span>© <span id="year">2026</span> Alvaro Busquet · Ferramentas Interativas de Transferência de Calor</span>
+    <span><a href="https://github.com/AlvaroBusquet/" target="_blank" rel="noopener noreferrer">github.com/AlvaroBusquet ↗</a></span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('heatApp');
+  if (root.dataset.initialized === 'true') return;
+  root.dataset.initialized = 'true';
+
+  const canvas = root.querySelector('#heatCanvas');
+  const ctx = canvas.getContext('2d');
+  const controls = root.querySelector('#controls');
+  const fluxValue = root.querySelector('#fluxValue');
+  const formula = root.querySelector('#formula');
+  const directionText = root.querySelector('#directionText');
+  const tabs = [...root.querySelectorAll('.tab')];
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sigma = 5.670374419e-8;
+  // Referências didáticas: o fluxo típico de cada mecanismo corresponde à velocidade visual de referência.
+  // A animação representa intensidade relativa, não o tempo microscópico real.
+  const motionReference = {conducao:150000, conveccao:5000, radiacao:7000};
+  let mode = 'conducao';
+  let phase = 0;
+  let values = {
+    material: 'aluminio', hot: 180, cold: 25,
+    fluid: 'ar', surface: 160, ambient: 25, h: 25,
+    emissivity: 0.85, radSurface: 350, radAmbient: 25
+  };
+
+  const materials = {
+    cobre: {name:'Cobre', k:401},
+    aluminio: {name:'Alumínio', k:237},
+    aco: {name:'Aço', k:45},
+    vidro: {name:'Vidro', k:1.0},
+    madeira: {name:'Madeira', k:0.12}
+  };
+
+  const config = {
+    conducao: {
+      title:'Condução em uma barra sólida', badge:'Sem transporte macroscópico',
+      controlTitle:'Ajuste a condução',
+      description:'Compare materiais e temperaturas mantendo o comprimento da barra fixo.',
+      conceptTitle:'O que está acontecendo?',
+      conceptText:'A energia é transferida por interações microscópicas entre partículas e, nos metais, também por elétrons livres. O material não precisa se deslocar como um todo.',
+      note:'Modelo didático: a animação é esquemática e não representa a escala real das partículas.',
+      points:['O calor flui devido a uma diferença de temperatura.','A condutividade térmica k indica quão facilmente o material conduz calor.','Para a mesma geometria e diferença de temperatura, maior k significa maior fluxo de calor.']
+    },
+    conveccao: {
+      title:'Convecção em um fluido', badge:'Há movimento do fluido',
+      controlTitle:'Ajuste a convecção',
+      description:'Altere a temperatura da superfície e o coeficiente convectivo do fluido.',
+      conceptTitle:'O que está acontecendo?',
+      conceptText:'A energia passa entre uma superfície e um fluido em movimento. O movimento pode surgir por diferenças de densidade (convecção natural) ou ser provocado por um ventilador ou bomba (convecção forçada).',
+      note:'O coeficiente h resume efeitos complexos do fluido, da velocidade e da geometria; não é uma propriedade fixa do material.',
+      points:['O fluido próximo à superfície troca energia com ela.','O movimento do fluido transporta energia de uma região para outra.','Em geral, maior velocidade do fluido aumenta h e intensifica a troca térmica.']
+    },
+    radiacao: {
+      title:'Irradiação térmica entre superfícies', badge:'Não exige meio material',
+      controlTitle:'Ajuste a irradiação',
+      description:'A temperatura absoluta e a emissividade determinam a troca radiativa líquida.',
+      conceptTitle:'O que está acontecendo?',
+      conceptText:'Toda superfície com temperatura acima do zero absoluto emite irradiação eletromagnética. A troca líquida depende da diferença entre a emissão da superfície e a irradiação recebida do ambiente.',
+      note:'O cálculo usa superfícies grandes, com fator de vista igual a 1, e aproxima o entorno por uma temperatura uniforme.',
+      points:['A irradiação pode se propagar no vácuo.','A emissividade ε varia de 0 a 1 e descreve a eficiência de emissão da superfície.','A dependência com a temperatura é proporcional à quarta potência da temperatura absoluta.']
+    }
+  };
+
+  function fieldRange(id,label,min,max,step,value,unit){
+    return `<div class="field"><div class="label-row"><label for="${id}">${label}</label><output id="${id}-out" for="${id}">${value}${unit}</output></div><input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${value}"><div class="range-hints"><span>${min}${unit}</span><span>${max}${unit}</span></div></div>`;
+  }
+  function fieldSelect(id,label,options,value){
+    return `<div class="field"><label for="${id}">${label}</label><select id="${id}">${options.map(o=>`<option value="${o.value}" ${o.value===value?'selected':''}>${o.label}</option>`).join('')}</select></div>`;
+  }
+  function renderControls(){
+    const c = config[mode];
+    root.querySelector('#visualTitle').textContent = c.title;
+    root.querySelector('#visualBadge').textContent = c.badge;
+    root.querySelector('#controlTitle').textContent = c.controlTitle;
+    root.querySelector('#controlDescription').textContent = c.description;
+    root.querySelector('#conceptTitle').textContent = c.conceptTitle;
+    root.querySelector('#conceptText').textContent = c.conceptText;
+    root.querySelector('#conceptNote').textContent = c.note;
+    root.querySelector('#keyPoints').innerHTML = c.points.map(p=>`<li>${p}</li>`).join('');
+    root.querySelector('#mechanism-panel').setAttribute('aria-labelledby',`tab-${mode}`);
+    if(mode==='conducao'){
+      controls.innerHTML =
+        fieldSelect('material','Material da barra',Object.entries(materials).map(([value,m])=>({value,label:`${m.name} (k = ${m.k} W/m·K)`})),values.material)+
+        fieldRange('hot','Temperatura da extremidade quente',0,500,5,values.hot,' °C')+
+        fieldRange('cold','Temperatura da extremidade fria',-20,200,5,values.cold,' °C');
+    } else if(mode==='conveccao'){
+      controls.innerHTML =
+        fieldSelect('fluid','Fluido',[
+          {value:'ar',label:'Ar (exemplo: h baixo a moderado)'},
+          {value:'agua',label:'Água (exemplo: h mais elevado)'}
+        ],values.fluid)+
+        fieldRange('surface','Temperatura da superfície',0,300,5,values.surface,' °C')+
+        fieldRange('ambient','Temperatura do fluido distante',-10,100,5,values.ambient,' °C')+
+        fieldRange('h','Coeficiente convectivo h',5,1000,5,values.h,' W/m²·K');
+    } else {
+      controls.innerHTML =
+        fieldRange('radSurface','Temperatura da superfície',0,1000,10,values.radSurface,' °C')+
+        fieldRange('radAmbient','Temperatura do entorno',-50,500,5,values.radAmbient,' °C')+
+        fieldRange('emissivity','Emissividade da superfície',0.05,1,0.05,values.emissivity,'');
+    }
+    controls.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',onControl));
+    updateResults();
+  }
+  function onControl(e){
+    const el=e.target, id=el.id;
+    if(id==='material') values.material=el.value;
+    else if(id==='hot') values.hot=Number(el.value);
+    else if(id==='cold') values.cold=Number(el.value);
+    else if(id==='fluid'){
+      values.fluid=el.value;
+      if(values.fluid==='agua' && values.h<100) values.h=250;
+      if(values.fluid==='ar' && values.h>150) values.h=25;
+      const hInput=controls.querySelector('#h');
+      if(hInput){hInput.value=values.h;controls.querySelector('#h-out').textContent=`${values.h} W/m²·K`;}
+    }
+    else if(id==='surface') values.surface=Number(el.value);
+    else if(id==='ambient') values.ambient=Number(el.value);
+    else if(id==='h') values.h=Number(el.value);
+    else if(id==='radSurface') values.radSurface=Number(el.value);
+    else if(id==='radAmbient') values.radAmbient=Number(el.value);
+    else if(id==='emissivity') values.emissivity=Number(el.value);
+    const out=controls.querySelector(`#${id}-out`);
+    if(out){
+      const unit = id==='hot'||id==='cold'||id==='surface'||id==='ambient'||id==='radSurface'||id==='radAmbient'?' °C':
+        id==='h'?' W/m²·K':'';
+      out.textContent = `${el.value}${unit}`;
+    }
+    updateResults();
+  }
+  function computeFlux(){
+    if(mode==='conducao'){
+      const delta=values.hot-values.cold;
+      return {q:materials[values.material].k*delta/0.25,formula:'q″ = k (Tquente − Tfria) / L',desc:`k = ${materials[values.material].k} W/m·K; L = 0,25 m.`};
+    }
+    if(mode==='conveccao'){
+      const delta=values.surface-values.ambient;
+      return {q:values.h*delta,formula:'q″ = h (Tsuperfície − Tfluido)',desc:`h = ${values.h} W/m²·K. Valor positivo indica calor saindo da superfície.`};
+    }
+    const Ts=values.radSurface+273.15, Tsur=values.radAmbient+273.15;
+    const q=values.emissivity*sigma*(Math.pow(Ts,4)-Math.pow(Tsur,4));
+    return {q,formula:'q″ = ε σ (Ts⁴ − Tamb⁴)',desc:`ε = ${values.emissivity.toFixed(2)}; σ = 5,67 × 10⁻⁸ W/m²·K⁴.`};
+  }
+  function fmt(n){
+    if(!Number.isFinite(n)) return '—';
+    const a=Math.abs(n);
+    return n.toLocaleString('pt-BR',{maximumFractionDigits:a>=1000?0:a>=100?1:a>=10?2:3});
+  }
+  function updateResults(){
+    const r=computeFlux();
+    fluxValue.textContent=`${fmt(r.q)} W/m²`;
+    formula.textContent=r.formula;
+    let direction;
+    if(Math.abs(r.q)<0.5) direction='Fluxo líquido praticamente nulo para estes parâmetros.';
+    else direction=r.q>0?'Fluxo líquido no sentido definido: da região/superfície mais quente para a mais fria.':'O sentido do fluxo se inverte: o ambiente/região oposta está mais quente.';
+    directionText.textContent=`${direction} ${r.desc}`;
+  }
+
+  tabs.forEach(btn=>btn.addEventListener('click',()=>{
+    mode=btn.dataset.mode;
+    tabs.forEach(t=>t.setAttribute('aria-selected',String(t===btn)));
+    renderControls();
+  }));
+
+  function resizeCanvas(){
+    const rect=canvas.getBoundingClientRect();
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    const w=Math.max(300,rect.width), h=w/1.48;
+    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+    canvas.style.height=`${h}px`;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function roundRect(x,y,w,h,r,fill,stroke){
+    ctx.beginPath();ctx.roundRect(x,y,w,h,r);
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke();}
+  }
+  function text(str,x,y,size=14,color='#334b5b',align='left',weight='500'){
+    ctx.fillStyle=color;ctx.font=`${weight} ${size}px system-ui, sans-serif`;ctx.textAlign=align;ctx.fillText(str,x,y);
+  }
+  function arrow(x1,y1,x2,y2,color,width=3){
+    const a=Math.atan2(y2-y1,x2-x1), head=9;
+    ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=width;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-head*Math.cos(a-.48),y2-head*Math.sin(a-.48));ctx.lineTo(x2-head*Math.cos(a+.48),y2-head*Math.sin(a+.48));ctx.closePath();ctx.fill();
+  }
+  function drawConduction(w,h,t){
+    const x=70,y=h*.39,bw=w-140,bh=112;
+    const hotOnLeft=values.hot>=values.cold;
+    text(hotOnLeft?'Extremidade quente':'Extremidade fria',x,y-36,13,'#b84d30','left','700');
+    text(hotOnLeft?'Extremidade fria':'Extremidade quente',x+bw,y-36,13,'#c83d2b','right','700');
+
+    const grad=ctx.createLinearGradient(x,y,x+bw,y);
+    if(hotOnLeft){
+      grad.addColorStop(0,'#cf3526');grad.addColorStop(.48,'#f29b38');grad.addColorStop(1,'#f8d56b');
+    }else{
+      grad.addColorStop(0,'#f8d56b');grad.addColorStop(.52,'#f29b38');grad.addColorStop(1,'#cf3526');
+    }
+    roundRect(x,y,bw,bh,13,grad,'rgba(91,52,35,.22)');
+    ctx.save();ctx.beginPath();ctx.roundRect(x,y,bw,bh,13);ctx.clip();
+    const cols=13,rows=4;
+    for(let i=0;i<cols;i++){
+      for(let j=0;j<rows;j++){
+        // Rede regular: os átomos vibram lateralmente, sem ondulação vertical da malha.
+        const baseX=x+18+i*(bw-36)/(cols-1);
+        const baseY=y+18+j*(bh-36)/(rows-1);
+        // Cada átomo possui frequência, fase e amplitude próprias, sem movimento coletivo sincronizado.
+        const seed=(i*37+j*83+17);
+        const phaseAtom=((seed*73)%101)/101*Math.PI*2;
+        const frequency=1.3+((seed*47)%89)/89*2.2;
+        const amplitude=1.5+((seed*31)%71)/71*1.6;
+        const px=baseX+Math.sin(t*frequency+phaseAtom)*amplitude;
+        const py=baseY;
+        ctx.beginPath();ctx.arc(px,py,4.2,0,Math.PI*2);
+        ctx.fillStyle=i<4?'rgba(255,245,224,.92)':i>8?'rgba(255,244,207,.96)':'rgba(255,255,255,.88)';
+        ctx.fill();
+        ctx.strokeStyle='rgba(91,52,35,.28)';ctx.lineWidth=.7;ctx.stroke();
+      }
+    }
+    ctx.restore();
+    for(let i=0;i<3;i++){
+      const yy=y+bh+38+i*22;
+      if(hotOnLeft) arrow(x+30,yy,x+bw-30,yy,'#c83d2b',2.5);
+      else arrow(x+bw-30,yy,x+30,yy,'#c83d2b',2.5);
+    }
+    text('Transferência de energia',w/2,y+bh+23,12,'#8a7063','center','600');
+    roundRect(70,h-64,w-140,35,9,'#fff1d6','#efd7c7');
+    text(`Material: ${materials[values.material].name}  ·  k = ${materials[values.material].k} W/m·K`,w/2,h-42,13,'#6e4a38','center','650');
+  }
+  function drawConvection(w,h,t){
+    const left=48,right=w-48,top=70,bottom=h-90;
+    const bg=ctx.createLinearGradient(0,top,0,bottom);
+    bg.addColorStop(0,'#fff2d7');bg.addColorStop(1,'#ffe3ad');
+    roundRect(left,top,right-left,bottom-top,18,bg,'#edc78e');
+
+    const surfaceHot=values.surface>=values.ambient;
+    // Superfície quente abaixo do fluido; superfície fria acima do fluido.
+    const plateY=surfaceHot?bottom-35:top+9;
+    const plateH=surfaceHot?48:39;
+    const fluidTop=surfaceHot?top+28:plateY+plateH+13;
+    const fluidBottom=surfaceHot?plateY-12:bottom-16;
+    const pg=ctx.createLinearGradient(0,plateY,0,plateY+plateH);
+    pg.addColorStop(0,surfaceHot?'#e66b42':'#f4c35e');
+    pg.addColorStop(1,surfaceHot?'#a83e2a':'#d88b2b');
+    roundRect(left+10,plateY,right-left-20,plateH,8,pg,'#b64c30');
+
+    if(surfaceHot){
+      text(values.fluid==='agua'?'Fluido: água':'Fluido: ar',left+14,top+24,12,'#8d603a','left','700');
+      text('Superfície mais quente',w/2,bottom+32,13,'#a94b32','center','750');
+    }else{
+      text('Superfície mais fria',w/2,plateY+25,13,'#784c2a','center','750');
+      text(values.fluid==='agua'?'Fluido: água':'Fluido: ar',left+14,bottom-9,12,'#8d603a','left','700');
+    }
+
+    // Circulação esquemática: fluxo ascendente central para placa quente inferior;
+    // fluido frio desce pelo centro quando a placa fria está no alto.
+    for(let i=0;i<25;i++){
+      const u=(i*.61803398875)%1;
+      const central=i%3!==0;
+      const movingUp=surfaceHot?central:!central;
+      const travel=((t*(central?.20:.13)+u)%1);
+      let px,py;
+      if(central){
+        px=w*.32+(i%7)*w*.045+Math.sin(t*1.5+i)*7;
+      }else{
+        px=i%2===0?left+35:right-35;
+      }
+      py=movingUp?fluidBottom-travel*(fluidBottom-fluidTop):fluidTop+travel*(fluidBottom-fluidTop);
+      ctx.beginPath();ctx.arc(px,py,3.3,0,Math.PI*2);
+      ctx.fillStyle=movingUp?'rgba(205,67,44,.78)':'rgba(196,116,36,.82)';
+      ctx.fill();
+    }
+    for(let i=0;i<3;i++){
+      const ax=w*.37+i*w*.12;
+      if(surfaceHot) arrow(ax,fluidBottom-15,ax-2,fluidTop+45,'#d96537',2.5);
+      else arrow(ax,fluidTop+13,ax-2,fluidBottom-25,'#d96537',2.5);
+    }
+    if(surfaceHot){
+      arrow(left+55,fluidTop+27,left+55,fluidBottom-35,'#e9a33a',2.2);
+      arrow(right-55,fluidTop+27,right-55,fluidBottom-35,'#e9a33a',2.2);
+      text('Fluido aquecido sobe',w/2,top+47,12,'#b65032','center','700');
+      text('Fluido mais frio retorna',w/2,top+65,11,'#a45a2c','center','600');
+    }else{
+      arrow(left+55,fluidBottom-35,left+55,fluidTop+25,'#e9a33a',2.2);
+      arrow(right-55,fluidBottom-35,right-55,fluidTop+25,'#e9a33a',2.2);
+      text('Fluido resfriado desce no centro',w/2,fluidTop+13,12,'#b65032','center','700');
+      text('Fluido mais quente sobe nas laterais',w/2,fluidTop+31,11,'#a45a2c','center','600');
+    }
+    roundRect(65,h-47,w-130,28,8,'#fff1d6','#efd7c7');
+    text(`h = ${values.h} W/m²·K  ·  ΔT = ${values.surface-values.ambient} °C`,w/2,h-28,12,'#6e4a38','center','650');
+  }
+  function drawRadiation(w,h,t){
+    // O objeto fica no centro; trajetos ondulatórios aparecem ao redor de toda a superfície.
+    roundRect(35,42,w-70,h-104,18,'#fffaf0','#efd7c7');
+    text('Troca de irradiação térmica com o entorno',w/2,28,12,'#8d5032','center','700');
+
+    const cx=w/2, cy=(42+h-62)/2;
+    const objW=w*.25, objH=h*.30;
+    const objX=cx-objW/2, objY=cy-objH/2;
+    const temp=values.radSurface;
+    const hotness=Math.max(0,Math.min(1,temp/1000));
+    const grad=ctx.createLinearGradient(objX,objY,objX+objW,objY+objH);
+    grad.addColorStop(0,hotness>.55?'#c83225':'#e98a35');
+    grad.addColorStop(1,hotness>.55?'#e95b2e':'#f2bd4f');
+    roundRect(objX,objY,objW,objH,13,grad,'#a94c32');
+    text('Objeto',cx,cy-5,14,'#fff8ef','center','750');
+    text(`${values.radSurface} °C`,cx,cy+17,12,'#fff8ef','center','650');
+
+    const q=computeFlux().q;
+    const rayCount=16;
+    // Paleta única: vermelho na extremidade quente e amarelo na extremidade fria.
+    const hotColor='#cf432c';
+    const coldColor='#f2bd4f';
+    const arrowColor='#a84229';
+    for(let i=0;i<rayCount;i++){
+      const angle=(Math.PI*2*i/rayCount)+Math.PI/16;
+      const dx=Math.cos(angle), dy=Math.sin(angle);
+      const absX=Math.max(Math.abs(dx),1e-5), absY=Math.max(Math.abs(dy),1e-5);
+      const r0=Math.min((objW/2)/absX,(objH/2)/absY)+5;
+      const edgeX=dx>=0?(w-48-cx)/absX:(cx-48)/absX;
+      const edgeY=dy>=0?(h-70-cy)/absY:(cy-48)/absY;
+      const r1=Math.min(edgeX,edgeY);
+      const span=Math.max(0,r1-r0-12);
+      if(span<12) continue;
+      const pointAt=(r)=>{
+        // A fase avança da superfície para o entorno quando q > 0;
+        // quando q < 0, avança do entorno para a superfície.
+        const waveDistance=q<0 ? r1-r : r-r0;
+        const offset=Math.sin(waveDistance*.17-t*2+i*.72)*3.5;
+        return [cx+dx*r-dy*offset,cy+dy*r+dx*offset];
+      };
+      ctx.beginPath();
+      for(let s=0;s<=span;s+=2.5){
+        const [px,py]=pointAt(r0+6+s);
+        if(s===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+      }
+      // O gradiente segue cada raio, inclusive quando o entorno está mais quente.
+      const lineGradient=ctx.createLinearGradient(cx+dx*r0,cy+dy*r0,cx+dx*r1,cy+dy*r1);
+      lineGradient.addColorStop(0,values.radSurface>=values.radAmbient?hotColor:coldColor);
+      lineGradient.addColorStop(1,values.radSurface>=values.radAmbient?coldColor:hotColor);
+      ctx.strokeStyle=lineGradient;
+      ctx.lineWidth=2.2;
+      ctx.lineCap='round';
+      ctx.stroke();
+
+      if(Math.abs(q)>0.5){
+        if(q>0){
+          const [x1,y1]=pointAt(r1-22);
+          const [x2,y2]=pointAt(r1-8);
+          arrow(x1,y1,x2,y2,arrowColor,1.7);
+        }else{
+          const [x1,y1]=pointAt(r0+32);
+          const [x2,y2]=pointAt(r0+18);
+          arrow(x1,y1,x2,y2,arrowColor,1.7);
+        }
+      }
+    }
+
+    text(q>=0?'Fluxo líquido para fora do objeto':'Fluxo líquido para o objeto',cx,h-77,11,q>=0?'#b64a2b':'#9a652b','center','700');
+    roundRect(55,h-48,w-110,29,8,'#fff1d6','#efd7c7');
+    text(`ε = ${values.emissivity.toFixed(2)}  ·  entorno = ${values.radAmbient} °C`,w/2,h-29,12,'#6e4a38','center','650');
+  }
+  function frame(){
+    const rect=canvas.getBoundingClientRect();
+    const w=rect.width||500,h=w/1.48;
+    if(canvas.width===0||canvas.height===0)resizeCanvas();
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+    const absFlux=Math.abs(computeFlux().q);
+    // Irradiação: movimento perceptível mesmo com pequeno fluxo líquido.
+    // Com fluxo praticamente nulo, a animação permanece parada.
+    // Na irradiação, separa-se a influência da diferença de temperatura
+    // da emissividade para evitar contá-la duas vezes (q já contém ε).
+    // Para ε = 0,85, preserva-se a velocidade de referência da versão anterior.
+    const intensity=mode==='radiacao'
+      ? (absFlux<0.5 ? 0 :
+          (0.85+1.65*(1-Math.exp(-(absFlux/values.emissivity)*0.85/motionReference.radiacao)))
+          *(values.emissivity/0.85))
+      : Math.min(2.5,absFlux/motionReference[mode]);
+    phase+=reducedMotion?0:.018*intensity;
+    if(mode==='conducao')drawConduction(w,h,phase);
+    else if(mode==='conveccao')drawConvection(w,h,phase);
+    else drawRadiation(w,h,phase);
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener('resize',resizeCanvas);
+  root.querySelector('#year').textContent = new Date().getFullYear();
+  renderControls();
+  resizeCanvas();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
