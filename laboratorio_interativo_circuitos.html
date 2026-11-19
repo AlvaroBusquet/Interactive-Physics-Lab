@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ALV · Laboratório Interativo de Circuitos</title><meta name="description" content="Simulador visual de circuitos RC, RLC e filtros passivos com fontes CC e CA."><style>
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;padding:0;background:#0a1220;color:#e7edf7;font:14px/1.45 Inter,Segoe UI,Roboto,Arial,sans-serif}button,select,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}a{color:#8edfd6}#app{max-width:1580px;margin:auto;padding:18px 20px 30px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:16px}.brand>span{display:inline-block;font-weight:800;letter-spacing:.2em;color:#62d4c9;font-size:11px}.brand h1{margin:2px 0 1px;font-size:24px;letter-spacing:-.6px;font-weight:760}.brand p{margin:0;color:#91a5ba;font-size:13px}.topactions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.topactions label{font-size:12px;color:#a8bacd}.badge{border:1px solid #324960;border-radius:6px;color:#abc5e0;padding:5px 8px;font-size:11px;letter-spacing:.05em;background:#112337}.btn,select,input[type=number]{border:1px solid #344962;background:#142338;color:#e9f1fa;border-radius:8px;min-height:35px}.btn{padding:8px 12px;font-weight:600;transition:background .15s,border-color .15s}.btn:hover{background:#203653;border-color:#54758d}.btn:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #67e0d5;outline-offset:2px}.btn.accent{background:#0a665f;border-color:#198c84;color:#eafffc}.btn.accent:hover{background:#0d7d72}.btn.warn{border-color:#7c4646;color:#ffc4c0}.btn.soft{background:#172d3d}.btn.active{background:#12675f;border-color:#31bcac;color:#f5fffe}.btn.small{padding:6px 10px;min-height:32px;font-size:12px}input[type=number],select{padding:5px 9px;min-width:0;max-width:100%}input[type=number]{width:100%}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 278px;gap:12px;align-items:stretch}.mainpanel,.sidebar,.chartsection{border:1px solid #293e55;border-radius:14px;background:#0e1b2c;min-width:0;overflow:hidden}.panelhead{padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:7px;flex-wrap:wrap;border-bottom:1px solid #25374c}.panelhead h2{font-size:13px;letter-spacing:.04em;font-weight:730;margin:0;color:#dfebf6}.panelhead small{color:#85a0b8}.toolrow{padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid #263a51}.chip{font-size:12px;padding:7px 10px;border-radius:7px;border:1px solid #35495e;background:#172b40;color:#d9e7f4;min-height:35px;font-weight:600}.chip:hover{background:#26415a;border-color:#558196}.chip .ic{font-size:16px;color:#74dfd5;font-weight:700;margin-right:5px}.canvas-toolbar{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;padding:8px 12px;background:#111f31}.modes{display:flex;gap:5px;align-items:center}.modes .btn{font-size:12px}.canvashelp{font-size:12px;color:#86acc3}.boardwrap{overflow-x:auto;width:100%;scrollbar-color:#314b67 transparent}.board{display:block;width:100%;min-width:670px;height:auto;background:#0b1929;touch-action:pan-x pan-y;user-select:none;cursor:default}.board .gridline{stroke:#193248;stroke-width:.8}.board .wire{stroke:#71b5bd;stroke-width:2.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.board .wire.sel{stroke:#ffbf77;stroke-width:4}.board .wire-hit{stroke:transparent;fill:none;stroke-width:18;cursor:pointer}.board .symbol{stroke:#d1deed;stroke-width:2.5;fill:none;stroke-linejoin:round;stroke-linecap:round;cursor:grab}.board .symbol .devicefill{fill:#14283b}.board .device.selected .symbol{stroke:#ffd18e}.board .device .pin{fill:#0e2232;stroke:#60cec8;stroke-width:2.2;cursor:crosshair}.board .device .pinhit{fill:transparent;stroke:transparent;stroke-width:15;cursor:crosshair}.board .device .pin.probe{fill:#ffcc72;stroke:#ffcc72}.board .device .pin.pending{fill:#69efda;stroke:#69efda}.board .device-label{font-size:15px;fill:#dfebfb;font-weight:750;letter-spacing:.02em;text-anchor:middle;pointer-events:none}.board .value-label{font-size:12px;fill:#91afc7;text-anchor:middle;pointer-events:none}.board .probe-label{fill:#ffcd78;font-size:12px;font-weight:bold;pointer-events:none}.board .srcsign{fill:#cee4e9;font-size:14px;font-weight:800;stroke:none;pointer-events:none}.board .pindot{pointer-events:none}.board .highlight-open{stroke:#ffb98e}.board .device-drag{fill:transparent;cursor:grab}.footerbar{border-top:1px solid #243b53;background:#112438;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:9px 13px;font-size:12px;color:#9db6c9}.legendkey{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.sidebar{padding:0}.sideblock{padding:12px;border-bottom:1px solid #24384b}.sideblock h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#7f9db7;margin:0 0 9px;font-weight:770}.selected-head{display:flex;justify-content:space-between;align-items:center;gap:5px;margin-bottom:10px}.selected-head strong{font-size:17px}.selected-head .kind{color:#9eb3c5;font-size:11px}.field{display:block;margin:9px 0}.field>span,.field label{font-size:12px;color:#aec1d3;display:block;margin-bottom:4px}.two-col{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:6px}.two-eq{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rowbtn{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.rowbtn .btn{flex:1;min-width:90px}.emptybox{color:#8fa9bb;font-size:13px;background:#13283b;border:1px dashed #38536a;border-radius:8px;padding:15px 12px}.muted{color:#8ca6bc}.note{color:#9bb2c8;font-size:12px;margin:8px 0 0}.status{padding:9px 12px;margin:0;border-left:3px solid #4bc6b3;background:#102e34;color:#c5eadf;font-size:12px;min-height:38px}.status.error{background:#332628;border-color:#e59a76;color:#ffd3c3}.chartsection{margin-top:12px}.charthead{padding:10px 14px;display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:1px solid #26394b}.tabs{display:flex;gap:5px}.tabs .btn{min-width:115px}.miniStats{display:flex;align-items:center;flex-wrap:wrap;gap:7px 18px;font-size:12px;color:#afc4d6;padding:8px 15px 2px}.miniStats b{color:#f2f8ff;font-size:13px}.chartbody{padding:2px 12px 8px}.plot{width:100%;height:auto;max-height:310px;display:block;touch-action:pan-x}.chart-note{font-size:12px;color:#829fb5;margin:0;padding:0 15px 11px}.plot .grid{stroke:#2c4057;stroke-width:1}.plot .axis{fill:#95aec3;font-size:12px}.plot .curve-out{fill:none;stroke:#66dacf;stroke-width:2.8;stroke-linejoin:round}.plot .curve-in{fill:none;stroke:#eeb77c;stroke-width:1.9;stroke-dasharray:6 5}.plot .curve-phase{fill:none;stroke:#a6a0f4;stroke-width:1.8}.plot .cursor{stroke:#ffde9f;stroke-width:1.5;stroke-dasharray:4 3}.readout{padding:0 15px 10px;color:#c0d1e2;font-size:12px;min-height:25px;display:flex;flex-wrap:wrap;gap:10px 17px}.hint{padding:10px 14px;background:#111f31;color:#91adbf;font-size:12px;border-top:1px solid #283d51}details.guide{margin-top:10px;border:1px solid #2b465d;border-radius:10px;background:#101e30;padding:10px 13px}details.guide summary{font-weight:750;cursor:pointer;color:#cbdbea}details.guide p{color:#9fb5c8;margin:10px 0 2px}details.guide ul{color:#9fb5c8;padding-left:20px;margin:7px 0}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@media(max-width:980px){.workspace{grid-template-columns:minmax(0,1fr)}.sidebar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.sidebar .sideblock{border-right:1px solid #283e53}.sidebar .status{grid-column:1/-1}.chartsection{margin-top:10px}}@media(max-width:670px){#app{padding:13px 9px 25px}.brand h1{font-size:21px}.panelhead{padding:10px}.toolrow{padding:8px}.chip{min-height:34px;padding:5px 8px}.sidebar{grid-template-columns:1fr}.sidebar .sideblock{border-right:0}.board{min-width:680px}.chartbody{padding:2px 5px}.plot{min-height:210px}.tabs .btn{min-width:0}}
+
+input[type=range]{min-height:28px;cursor:pointer;accent-color:#5edace}
+
+</style></head><body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand"><span>ALV · FERRAMENTAS INTERATIVAS</span><h1>Laboratório de circuitos</h1><p>Construa, conecte e analise circuitos CC e CA no próprio navegador.</p></div>
+    <div class="topactions">
+      <label for="preset">Circuito inicial</label>
+      <select id="preset" aria-label="Escolher circuito de exemplo">
+        <option value="rcCharge">RC · carga do capacitor</option>
+        <option value="rlcStep">RLC · resposta ao degrau</option>
+        <option value="lowpass">Filtro RC · passa-baixas</option>
+        <option value="highpass">Filtro RC · passa-altas</option>
+        <option value="bandpass">Filtro RLC · passa-faixa</option>
+      </select>
+      <button type="button" class="btn small" id="save">↓ Salvar</button>
+      <button type="button" class="btn small" id="load">↑ Abrir</button>
+      <input class="sr-only" id="file" type="file" accept=".json,application/json" aria-label="Importar circuito JSON">
+      <button type="button" class="btn small warn" id="clear">Limpar</button>
+    </div>
+  </div>
+  <div class="workspace">
+    <section class="mainpanel" aria-label="Editor de circuitos">
+      <div class="panelhead"><h2>ESQUEMÁTICO INTERATIVO</h2><small>Adicionar componente</small></div>
+      <div class="toolrow" id="palette">
+        <button type="button" class="chip" data-add="dc" title="Fonte ideal de tensão contínua"><span class="ic">⎓</span> Fonte CC</button>
+        <button type="button" class="chip" data-add="ac" title="Fonte ideal senoidal de tensão"><span class="ic">∿</span> Fonte CA</button>
+        <button type="button" class="chip" data-add="ground"><span class="ic">⏚</span> Terra</button>
+        <button type="button" class="chip" data-add="switch"><span class="ic">⟋</span> Chave</button>
+        <button type="button" class="chip" data-add="r"><span class="ic">▱</span> Resistor</button>
+        <button type="button" class="chip" data-add="c"><span class="ic">⊣⊢</span> Capacitor</button>
+        <button type="button" class="chip" data-add="l"><span class="ic">∿</span> Indutor</button>
+      </div>
+      <div class="canvas-toolbar">
+        <div class="modes" role="group" aria-label="Modo do editor">
+          <button type="button" class="btn small active" data-mode="select">↖ Selecionar</button>
+          <button type="button" class="btn small" data-mode="wire">⌁ Conectar</button>
+          <button type="button" class="btn small" data-mode="probe">⌖ Sonda Vout</button>
+        </div>
+        <span class="canvashelp" id="canvashelp">Arraste peças; clique para ajustar seus valores.</span>
+      </div>
+      <div class="boardwrap"><svg class="board" id="board" tabindex="0" viewBox="0 0 960 420" role="img" aria-label="Diagrama elétrico editável com componentes e terminais"><defs><pattern id="gsmall" width="20" height="20" patternUnits="userSpaceOnUse"><path class="gridline" d="M20 0H0V20" fill="none"/></pattern><pattern id="gbig" width="100" height="100" patternUnits="userSpaceOnUse"><rect width="100" height="100" fill="url(#gsmall)"/><path class="gridline" d="M100 0H0V100" fill="none" opacity=".65"/></pattern></defs><rect width="960" height="420" fill="url(#gbig)"/></svg></div>
+      <div class="footerbar"><span><i class="legendkey" style="background:#6adcd2"></i>Terminal / fio <i class="legendkey" style="background:#ffcc74;margin-left:12px"></i>Sonda de saída</span><span id="componentsCount">0 componentes · 0 fios</span></div>
+    </section>
+    <aside class="sidebar">
+      <div class="sideblock"><h3>Componente selecionado</h3><div id="properties"><div class="emptybox">Selecione uma peça do esquemático para editar seus parâmetros.</div></div></div>
+      <div class="sideblock">
+        <h3>Parâmetros de simulação</h3>
+        <label class="field"><span>Fonte para resposta em frequência</span><select id="excitation" style="width:100%"></select></label>
+        <label class="field"><span>Janela de tempo (ms)</span><input type="number" id="duration" min="0.05" max="100000" step="any" value="60"></label>
+        <div class="two-eq">
+          <label class="field"><span>f mínima (Hz)</span><input id="fmin" type="number" min="0.001" max="1000000000" step="any" value="1"></label>
+          <label class="field"><span>f máxima (Hz)</span><input id="fmax" type="number" min="0.001" max="1000000000" step="any" value="100000"></label>
+        </div>
+        <div class="rowbtn"><button type="button" id="analyze" class="btn accent">▶ Simular</button><button type="button" class="btn" id="togglePlayback">▶ Animar</button></div>
+        <p class="note">Análise transiente: integração numérica. Frequência: análise CA de pequenos sinais com fonte de teste de 1 V.</p>
+      </div>
+      <div id="status" class="status" aria-live="polite">Carregando circuito…</div>
+    </aside>
+  </div>
+  <section class="chartsection" aria-label="Resultados da simulação">
+    <div class="charthead"><div class="tabs" role="group" aria-label="Tipo de análise"><button class="btn small active" type="button" data-tab="time">↝ Resposta temporal</button><button class="btn small" type="button" data-tab="bode">∿ Resposta em frequência</button></div>
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><label for="quantity" class="muted" style="font-size:12px">Exibir</label><select id="quantity" style="max-width:250px"><option value="voltage">Tensão (Vout e Vin)</option><option value="current">Corrente no componente</option></select></div>
+    </div>
+    <div class="miniStats" id="stats" aria-live="polite"><span>Aguardando cálculo…</span></div>
+    <div class="chartbody"><svg id="chart" class="plot" viewBox="0 0 940 300" role="img" aria-label="Gráfico de tensão no tempo ou resposta em frequência"></svg></div>
+    <div class="readout" id="readout" aria-live="polite"></div>
+    <div class="chart-note" id="chartnote">Vout é a tensão do terminal marcado em amarelo em relação ao terra.</div>
+    <div class="hint"><strong>Dica:</strong> em <strong>Conectar</strong>, clique em dois terminais para criar um fio; vários fios podem terminar no mesmo terminal. Em <strong>Sonda Vout</strong>, clique no nó cuja tensão quer medir. Para excluir, selecione um fio ou componente e use Delete ou o botão Excluir.</div>
+  </section>
+  <details class="guide"><summary>Como usar · limitações do modelo</summary>
+    <p>Escolha um circuito de exemplo, altere o valor de um elemento no painel lateral e observe a curva imediatamente. Para desenhar outro circuito, acrescente peças, mova-as e una terminais usando o modo <strong>Conectar</strong>. O aterramento estabelece o referencial de 0 V, mas vários símbolos de terra representam o mesmo nó elétrico. O botão Salvar exporta um arquivo JSON e Abrir recupera o circuito.</p>
+    <p><strong>Hipóteses físicas:</strong> componentes ideais e lineares; fontes independentes ideais de tensão; terra de referência; chave fechada com resistência de 1 mΩ, aberta com 1 GΩ. O cálculo transiente usa análise nodal modificada com Euler implícito e condições iniciais nulas para capacitores e indutores. O estado da chave é fixado desde t = 0, sem eventos agendados. A varredura de frequência usa fasores: a fonte escolhida é excitada por 1 V, as demais fontes independentes de tensão são zeradas. Não inclui parasitas, saturação, aquecimento ou dispositivos semicondutores. Uma malha de fontes ideais ou curtos ideais incompatíveis pode não ter solução. Para frequências altas, diminua a janela de tempo ou aumente-a se quiser visualizar transientes lentos.</p>
+  </details>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const root=document.getElementById('app');
+if(root.dataset.ready) return;
+root.dataset.ready='yes';
+const $=id=>root.querySelector('#'+id);
+const board=$('board'),chart=$('chart');
+const nameMap={dc:'Fonte CC',ac:'Fonte CA',ground:'Terra',switch:'Chave',r:'Resistor',c:'Capacitor',l:'Indutor'};
+const prefix={dc:'V',ac:'V',ground:'GND',switch:'S',r:'R',c:'C',l:'L'};
+const defaultValues={dc:10,ac:2,r:1000,c:1e-7,l:0.02,switch:1};
+const state={components:[],wires:[],probe:null,selectedId:null,selWire:-1,mode:'select',pending:null,excitation:null,tab:'time',quantity:'voltage',duration:60,fmin:1,fmax:1e5,analysis:null,cursor:0,playing:false,frame:0,lastStamp:0,drag:null,nextId:1,preset:'rcCharge'};
+const fmt=(v,d=3)=>Number.isFinite(v)?Number(v.toPrecision(d)).toLocaleString('pt-BR',{maximumFractionDigits:Math.max(0,d+2)}):'—';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $btn=(s,cb)=>{const el=root.querySelector(s);if(el)el.addEventListener('click',cb)};
+function newComponent(type,x,y,rot){
+  let n=1;while(state.components.some(c=>c.name===prefix[type]+n))n++;
+  const c={id:'p'+state.nextId++,type,name:type==='ground'?'GND'+n:prefix[type]+n,x,y,rot:rot??((type==='dc'||type==='ac')?90:0),value:defaultValues[type]??0,freq:1000,phase:0,offset:0,closed:true};
+  state.components.push(c);return c;
+}
+function getComponent(id){return state.components.find(c=>c.id===id)}
+function pkey(id,p){return id+':'+p}
+function npins(c){return c.type==='ground'?1:2}
+function terminal(c,p){
+  if(c.type==='ground') return {x:c.x,y:c.y-32};
+  const h=p===0?-43:43;
+  return c.rot%180===0?{x:c.x+h*(c.rot===180?-1:1),y:c.y}:{x:c.x,y:c.y+h*(c.rot===90?1:-1)};
+}
+function wire(a,ap,b,bp){
+  if(a.id===b.id && ap===bp)return;
+  const ka=pkey(a.id,ap),kb=pkey(b.id,bp);
+  if(state.wires.some(w=>{const l=pkey(w.a.id,w.a.p),r=pkey(w.b.id,w.b.p);return l===ka&&r===kb||l===kb&&r===ka}))return;
+  state.wires.push({a:{id:a.id,p:ap},b:{id:b.id,p:bp}});
+}
+function makePreset(type){
+  stopPlayback();
+  state.components=[];state.wires=[];state.probe=null;state.selectedId=null;state.selWire=-1;state.pending=null;state.nextId=1;state.preset=type;
+  const ids={};const add=(key,t,x,y,rot,value,more={})=>{const c=newComponent(t,x,y,rot);if(value!==undefined)c.value=value;Object.assign(c,more);ids[key]=c;return c};
+  const join=(a,ap,b,bp)=>wire(ids[a],ap,ids[b],bp);
+  if(type==='rcCharge'){
+    add('v','dc',140,215,90,10);add('s','switch',308,132,0);add('r','r',482,132,0,1000);add('c','c',705,244,90,10e-6);add('g','ground',140,383,0);
+    join('v',0,'s',0);join('s',1,'r',0);join('r',1,'c',0);join('c',1,'g',0);join('v',1,'g',0);
+    state.probe={id:ids.c.id,p:0};state.excitation=ids.v.id;state.duration=60;state.fmin=0.1;state.fmax=10000;
+  }else if(type==='rlcStep'){
+    add('v','dc',120,213,90,10);add('s','switch',265,118,0);add('r','r',415,118,0,15);add('l','l',558,118,0,0.035);add('c','c',750,240,90,47e-6);add('g','ground',120,377,0);
+    join('v',0,'s',0);join('s',1,'r',0);join('r',1,'l',0);join('l',1,'c',0);join('c',1,'g',0);join('v',1,'g',0);
+    state.probe={id:ids.c.id,p:0};state.excitation=ids.v.id;state.duration=55;state.fmin=1;state.fmax=10000;
+  }else if(type==='lowpass'){
+    add('v','ac',145,220,90,2,{freq:1000});add('r','r',376,136,0,1000);add('c','c',673,248,90,100e-9);add('g','ground',145,378,0);
+    join('v',0,'r',0);join('r',1,'c',0);join('c',1,'g',0);join('v',1,'g',0);
+    state.probe={id:ids.c.id,p:0};state.excitation=ids.v.id;state.duration=6;state.fmin=10;state.fmax=200000;
+  }else if(type==='highpass'){
+    add('v','ac',145,220,90,2,{freq:1000});add('c','c',376,136,0,100e-9);add('r','r',673,248,90,1000);add('g','ground',145,378,0);
+    join('v',0,'c',0);join('c',1,'r',0);join('r',1,'g',0);join('v',1,'g',0);
+    state.probe={id:ids.r.id,p:0};state.excitation=ids.v.id;state.duration=6;state.fmin=10;state.fmax=200000;
+  }else if(type==='bandpass'){
+    add('v','ac',115,230,90,2,{freq:3559});add('l','l',295,125,0,20e-3);add('c','c',492,125,0,100e-9);add('r','r',750,247,90,100);add('g','ground',115,377,0);
+    join('v',0,'l',0);join('l',1,'c',0);join('c',1,'r',0);join('r',1,'g',0);join('v',1,'g',0);
+    state.probe={id:ids.r.id,p:0};state.excitation=ids.v.id;state.duration=3;state.fmin=30;state.fmax=200000;
+  }
+  $('duration').value=state.duration;$('fmin').value=state.fmin;$('fmax').value=state.fmax;$('preset').value=type;
+  state.cursor=0;setMode('select');renderAll();requestAnalysis();
+}
+function wiresPath(x1,y1,x2,y2){
+  if(Math.abs(x1-x2)<1.2||Math.abs(y1-y2)<1.2) return `M ${x1} ${y1} L ${x2} ${y2}`;
+  // Roteamento ortogonal simples, mantido ao arrastar componentes.
+  if(Math.abs(x1-x2)>Math.abs(y1-y2)){
+    const mid=Math.round((x1+x2)/20)*10;return `M ${x1} ${y1} H ${mid} V ${y2} H ${x2}`;
+  }
+  const mid=Math.round((y1+y2)/20)*10;return `M ${x1} ${y1} V ${mid} H ${x2} V ${y2}`;
+}
+function shape(c){
+  switch(c.type){
+    case 'r':return '<path d="M-43 0H-25M25 0H43"/><rect class="devicefill" x="-25" y="-12" width="50" height="24" rx="2"/>';
+    case 'c':return '<path d="M-43 0H-7M7 0H43M-7-21V21M7-21V21"/>';
+    case 'l':return '<path d="M-43 0H-28M28 0H43M-28 0C-28-26-14-26-14 0C-14-26 0-26 0 0C0-26 14-26 14 0C14-26 28-26 28 0"/>';
+    case 'switch':return c.closed?'<path d="M-43 0H-22M22 0H43M-22 0L22 0"/><circle class="devicefill" cx="-22" cy="0" r="4"/><circle class="devicefill" cx="22" cy="0" r="4"/>':'<path d="M-43 0H-22M22 0H43M-22 0L16 -23"/><circle class="devicefill" cx="-22" cy="0" r="4"/><circle class="devicefill" cx="22" cy="0" r="4"/>';
+    case 'dc':return '<path d="M-43 0H-22M22 0H43"/><circle class="devicefill" r="22"/><path d="M-11-6V6M-16 0H-6M7 0H16"/>';
+    case 'ac':return '<path d="M-43 0H-22M22 0H43"/><circle class="devicefill" r="22"/><path d="M-16 0Q-8 -16 0 0T16 0"/>';
+    case 'ground':return '<path d="M0-32V-9M-19-9H19M-12-2H12M-5 5H5"/>';
+  }
+  return '';
+}
+function symbolValue(c){
+  if(c.type==='r')return fmtEngineering(c.value,'Ω');
+  if(c.type==='c')return fmtEngineering(c.value,'F');
+  if(c.type==='l')return fmtEngineering(c.value,'H');
+  if(c.type==='ac')return fmt(c.value)+' V · '+fmtEngineering(c.freq,'Hz');
+  if(c.type==='dc')return fmt(c.value)+' V';
+  if(c.type==='switch')return c.closed?'FECHADA':'ABERTA';
+  return '0 V';
+}
+function fmtEngineering(value,unit){
+  const a=Math.abs(value),prefixes=[{m:1e9,p:'G'},{m:1e6,p:'M'},{m:1e3,p:'k'},{m:1,p:''},{m:1e-3,p:'m'},{m:1e-6,p:'µ'},{m:1e-9,p:'n'},{m:1e-12,p:'p'}];
+  const u=prefixes.find(q=>a>=q.m*.999)||prefixes[prefixes.length-1];return fmt(value/u.m)+' '+u.p+unit;
+}
+function renderDiagram(){
+  let html='';
+  for(let i=0;i<state.wires.length;i++){
+    const w=state.wires[i],a=getComponent(w.a.id),b=getComponent(w.b.id);if(!a||!b)continue;
+    const p=terminal(a,w.a.p),q=terminal(b,w.b.p),d=wiresPath(p.x,p.y,q.x,q.y);
+    html+=`<path class="wire${state.selWire===i?' sel':''}" d="${d}"/><path class="wire-hit" data-wire="${i}" d="${d}"/>`;
+  }
+  for(const c of state.components){
+    const selected=state.selectedId===c.id;
+    html+=`<g class="device${selected?' selected':''}" data-component="${escapeHTML(c.id)}" transform="translate(${c.x} ${c.y})"><g class="symbol${c.type==='switch'&&!c.closed?' highlight-open':''}" transform="rotate(${c.rot})">${shape(c)}</g>`;
+    const labelY=c.type==='ground'?35:(c.rot%180===90?66:50);
+    html+=`<text class="device-label" x="0" y="${labelY}">${escapeHTML(c.name)}</text><text class="value-label" x="0" y="${labelY+16}">${escapeHTML(symbolValue(c))}</text>`;
+    for(let k=0;k<npins(c);k++){
+      const pt=terminal(c,k),xx=pt.x-c.x,yy=pt.y-c.y;
+      const probed=state.probe&&state.probe.id===c.id&&state.probe.p===k;
+      const pending=state.pending&&state.pending.id===c.id&&state.pending.p===k;
+      html+=`<circle class="pin${probed?' probe':''}${pending?' pending':''}" cx="${xx}" cy="${yy}" r="6"/><circle data-part="${escapeHTML(c.id)}" data-port="${k}" class="pinhit" cx="${xx}" cy="${yy}" r="12"/>`;
+      if(probed)html+=`<text class="probe-label" x="${xx+12}" y="${yy-11}">Vout</text>`;
+      if(pending)html+=`<circle cx="${xx}" cy="${yy}" r="12" fill="none" stroke="#79f3dd" stroke-dasharray="3 2"/>`;
+    }
+    html+='</g>';
+  }
+  board.querySelectorAll('.wire,.wire-hit,.device').forEach(el=>el.remove());
+  board.insertAdjacentHTML('beforeend',html);
+  $('componentsCount').textContent=state.components.length+' componentes · '+state.wires.length+' fios';
+}
+function fieldHTML(label,id,val,unit){return `<label class="field"><span>${label}</span><input type="number" step="any" id="${id}" value="${escapeHTML(String(val))}">${unit?`<span class="note">${unit}</span>`:''}</label>`}
+const units={r:[['Ω',1],['kΩ',1e3],['MΩ',1e6]],c:[['F',1],['mF',1e-3],['µF',1e-6],['nF',1e-9],['pF',1e-12]],l:[['H',1],['mH',1e-3],['µH',1e-6]]};
+function preferredUnit(type,val){const arr=units[type];const a=Math.abs(val);return arr.find(u=>(a/u[1]>=1 && a/u[1]<1000))??(a>=arr[0][1]?arr[0]:arr[arr.length-1])}
+function renderProperties(){
+  const el=$('properties'),c=getComponent(state.selectedId);
+  if(state.selWire>=0){
+    el.innerHTML='<div class="selected-head"><strong>Fio de ligação</strong><span class="kind">condutor ideal</span></div><p class="note">Este fio une dois terminais, formando um único nó elétrico.</p><button type="button" class="btn warn" id="deleteWire">Excluir fio</button>';
+    $btn('#deleteWire',()=>{state.wires.splice(state.selWire,1);state.selWire=-1;renderAll();requestAnalysis()});return;
+  }
+  if(!c){el.innerHTML='<div class="emptybox">Selecione uma peça do esquemático para editar seus parâmetros.</div>';return}
+  let part=`<div class="selected-head"><strong>${escapeHTML(c.name)}</strong><span class="kind">${escapeHTML(nameMap[c.type])}</span></div>`;
+  if(units[c.type]){
+    const unit=preferredUnit(c.type,c.value);
+    part+=`<label class="field"><span>${c.type==='r'?'Resistência':c.type==='c'?'Capacitância':'Indutância'}</span><div class="two-col"><input type="number" step="any" id="partValue" value="${Number((c.value/unit[1]).toPrecision(8))}" aria-label="Valor do componente"><select id="partUnit" aria-label="Unidade">${units[c.type].map(u=>`<option value="${u[1]}"${u[1]===unit[1]?' selected':''}>${u[0]}</option>`).join('')}</select></div></label>`;
+  }else if(c.type==='dc'||c.type==='ac'){
+    part+=fieldHTML(c.type==='ac'?'Amplitude de pico (V)':'Tensão contínua (V)','partValue',c.value);
+    if(c.type==='ac')part+=fieldHTML('Frequência (Hz)','partFreq',c.freq)+fieldHTML('Fase inicial (graus)','partPhase',c.phase)+fieldHTML('Offset CC (V)','partOffset',c.offset);
+  }else if(c.type==='switch'){
+    part+=`<p class="note">Estado atual: <b>${c.closed?'fechada (conduz)':'aberta (interrompe)'}</b>.</p><button type="button" class="btn ${c.closed?'':'accent'}" id="switchToggle">${c.closed?'Abrir chave':'Fechar chave'}</button>`;
+  }else if(c.type==='ground')part+='<p class="note">Este terminal estabelece o referencial de 0 V.</p>';
+  // Regulagem rápida na escala correta de cada grandeza.
+  const sliderLimits={r:[-1,7],c:[-12,-2],l:[-6,1],dc:[-24,24],ac:[0,24]};
+  if(sliderLimits[c.type]){
+    const limits=sliderLimits[c.type],isLog=!!units[c.type];
+    const sliderVal=isLog?Math.log10(clamp(c.value,Math.pow(10,limits[0]),Math.pow(10,limits[1]))):clamp(c.value,limits[0],limits[1]);
+    part+=`<label class="field"><span>Ajuste rápido · ${isLog?'escala logarítmica':'escala linear'}</span><input aria-label="Ajuste rápido de ${escapeHTML(nameMap[c.type])}" id="partSlider" type="range" min="${limits[0]}" max="${limits[1]}" step="${isLog?.025:.1}" value="${sliderVal}" style="width:100%;accent-color:#5edace"></label>`;
+  }
+  if(c.type==='ac')part+=`<label class="field"><span>Ajuste de frequência (1 Hz–100 kHz)</span><input aria-label="Ajuste rápido de frequência" id="freqSlider" type="range" min="0" max="5" step="0.025" value="${Math.log10(clamp(c.freq,1,1e5))}" style="width:100%;accent-color:#5edace"></label>`;
+  part+=`<div class="two-eq"><label class="field"><span>Posição X (px)</span><input id="positionX" type="number" step="10" min="55" max="905" value="${c.x}"></label><label class="field"><span>Posição Y (px)</span><input id="positionY" type="number" step="10" min="55" max="355" value="${c.y}"></label></div>`;
+  part+=`<div class="rowbtn"><button type="button" class="btn small" id="rotatePart" ${c.type==='ground'?'disabled':''}>↻ Girar 90°</button><button type="button" class="btn small" id="duplicatePart">Duplicar</button></div><div class="rowbtn">${npins(c)===2?'<button type="button" class="btn small" id="probeA">Sonda no A</button><button type="button" class="btn small" id="probeB">Sonda no B</button>':''}<button type="button" class="btn small warn" id="deletePart">Excluir</button></div>`;
+  el.innerHTML=part;
+  const update=(key,v,min,max)=>{if(!Number.isFinite(v)||v<min||v>max){showStatus('Valor inválido. Verifique o campo e os limites físicos.','error');return false}c[key]=v;if(key==='value'&&$('partSlider'))$('partSlider').value=String(units[c.type]?Math.log10(clamp(v,1e-12,1e7)):v);if(key==='freq'&&$('freqSlider'))$('freqSlider').value=String(Math.log10(clamp(v,1,1e5)));renderDiagram();requestAnalysis();return true};
+  const vi=$('partValue'),ui=$('partUnit');
+  if(vi)vi.addEventListener('change',()=>{const multiplier=ui?Number(ui.value):1;update('value',Number(vi.value)*multiplier,c.type==='dc'||c.type==='ac'?-1e6:1e-15,1e12)});
+  if(ui)ui.addEventListener('change',()=>{update('value',Number(vi.value)*Number(ui.value),1e-15,1e12);renderProperties()});
+  for(const [id,key,min,max] of [['partFreq','freq',0.001,1e9],['partPhase','phase',-36000,36000],['partOffset','offset',-1e6,1e6]]){const e=$(id);if(e)e.addEventListener('change',()=>update(key,Number(e.value),min,max))}
+  const quick=$('partSlider');if(quick)quick.addEventListener('input',()=>{
+    const n=Number(quick.value),val=units[c.type]?Math.pow(10,n):n;
+    c.value=val;
+    if(vi){if(ui){const unit=preferredUnit(c.type,val);ui.value=String(unit[1]);vi.value=String(Number((val/unit[1]).toPrecision(5)))}else vi.value=String(Number(val.toPrecision(5)))}
+    renderDiagram();requestAnalysis();
+  });
+  const freqSlider=$('freqSlider');if(freqSlider)freqSlider.addEventListener('input',()=>{
+    c.freq=Math.pow(10,Number(freqSlider.value));const f=$('partFreq');if(f)f.value=String(Number(c.freq.toPrecision(5)));renderDiagram();requestAnalysis();
+  });
+  for(const [id,key,min,max] of [['positionX','x',55,905],['positionY','y',55,355]]){
+    const e=$(id);if(e)e.addEventListener('change',()=>{
+      const v=Number(e.value);if(!Number.isFinite(v)||v<min||v>max){e.value=c[key];showStatus('Coordenada fora da área de desenho.','error');return}
+      c[key]=v;renderDiagram();
+    });
+  }
+  $btn('#rotatePart',()=>{c.rot=(c.rot+90)%360;renderDiagram()});
+  $btn('#duplicatePart',()=>{const cp=newComponent(c.type,clamp(c.x+100,65,890),clamp(c.y+70,55,360),c.rot);Object.assign(cp,{value:c.value,freq:c.freq,phase:c.phase,offset:c.offset,closed:c.closed});state.selectedId=cp.id;renderAll();requestAnalysis()});
+  $btn('#deletePart',()=>removeComponent(c.id));
+  $btn('#switchToggle',()=>{c.closed=!c.closed;renderAll();requestAnalysis()});
+  $btn('#probeA',()=>{state.probe={id:c.id,p:0};renderDiagram();requestAnalysis()});
+  $btn('#probeB',()=>{state.probe={id:c.id,p:1};renderDiagram();requestAnalysis()});
+}
+function removeComponent(id){state.components=state.components.filter(c=>c.id!==id);state.wires=state.wires.filter(w=>w.a.id!==id&&w.b.id!==id);if(state.probe?.id===id)state.probe=null;if(state.excitation===id)state.excitation=null;state.selectedId=null;state.selWire=-1;renderAll();requestAnalysis()}
+function renderExcitation(){
+  const src=state.components.filter(c=>c.type==='dc'||c.type==='ac');
+  if(!src.find(c=>c.id===state.excitation))state.excitation=src[0]?.id??null;
+  $('excitation').innerHTML=src.length?src.map(c=>`<option value="${c.id}"${c.id===state.excitation?' selected':''}>${escapeHTML(c.name)} · ${c.type==='dc'?'CC':'CA'}</option>`).join(''):'<option value="">Sem fonte</option>';
+}
+function renderAll(){renderDiagram();renderProperties();renderExcitation()}
+function setMode(mode){state.mode=mode;state.pending=null;
+  root.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  $('canvashelp').textContent={select:'Arraste peças; clique para ajustar seus valores.',wire:'Clique em um terminal e depois em outro para conectar.',probe:'Clique em um terminal para medir sua tensão.'}[mode];
+  renderDiagram();
+}
+function selectPart(id){state.selectedId=id;state.selWire=-1;renderDiagram();renderProperties();if(state.quantity==='current')renderChart()}
+function toSVGPoint(evt){const p=board.createSVGPoint();p.x=evt.clientX;p.y=evt.clientY;const ctm=board.getScreenCTM();return ctm?p.matrixTransform(ctm.inverse()):{x:0,y:0}}
+board.addEventListener('pointerdown',e=>{
+  board.focus({preventScroll:true});
+  const port=e.target.closest('[data-part]');const dev=e.target.closest('[data-component]');const wireEl=e.target.closest('[data-wire]');
+  if(port){const id=port.dataset.part,p=Number(port.dataset.port),c=getComponent(id);if(!c)return;
+    if(state.mode==='wire'){
+      if(!state.pending)state.pending={id,p};
+      else if(state.pending.id===id&&state.pending.p===p)state.pending=null;
+      else{const from=getComponent(state.pending.id);if(from)wire(from,state.pending.p,c,p);state.pending=null;requestAnalysis()}
+      renderDiagram();return;
+    }
+    if(state.mode==='probe'){state.probe={id,p};selectPart(id);requestAnalysis();return}
+    selectPart(id);return;
+  }
+  if(state.mode==='select'&&dev){const c=getComponent(dev.dataset.component);if(!c)return;selectPart(c.id);const pt=toSVGPoint(e);state.drag={id:c.id,x:pt.x,y:pt.y,originalX:c.x,originalY:c.y,moved:false};try{board.setPointerCapture(e.pointerId)}catch{}e.preventDefault();return}
+  if(state.mode==='select'&&wireEl){state.selectedId=null;state.selWire=Number(wireEl.dataset.wire);renderDiagram();renderProperties();return}
+  if(state.mode==='select'){state.selectedId=null;state.selWire=-1;renderDiagram();renderProperties()}
+});
+board.addEventListener('pointermove',e=>{
+  const d=state.drag;if(!d)return;const c=getComponent(d.id);if(!c)return;const p=toSVGPoint(e),dx=p.x-d.x,dy=p.y-d.y;
+  if(Math.hypot(dx,dy)<2&&!d.moved)return;
+  c.x=clamp(Math.round((d.originalX+dx)/10)*10,55,905);
+  c.y=clamp(Math.round((d.originalY+dy)/10)*10,55,355);d.moved=true;renderDiagram();
+});
+for(const eventName of ['pointerup','pointercancel','lostpointercapture'])board.addEventListener(eventName,()=>{state.drag=null});
+root.addEventListener('keydown',e=>{if(!['Delete','Backspace','Escape'].includes(e.key)||['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;
+  if(e.key==='Escape'){state.pending=null;setMode('select');return}
+  if(state.selWire>=0){state.wires.splice(state.selWire,1);state.selWire=-1;renderAll();requestAnalysis();e.preventDefault()}
+  else if(state.selectedId){removeComponent(state.selectedId);e.preventDefault()}
+});
+root.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+root.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>{
+  if(state.components.length>=50){showStatus('Limite didático: até 50 componentes.','error');return}
+  const type=b.dataset.add;const tries=[[520,315],[370,305],[795,125],[285,282],[730,345],[600,115],[840,285],[155,130]];
+  let place=tries.find(p=>state.components.every(c=>Math.hypot(c.x-p[0],c.y-p[1])>105));
+  if(!place)place=[90+(state.components.length*87)%760,85+(state.components.length*41)%245];
+  const c=newComponent(type,...place);selectPart(c.id);setMode('select');renderAll();requestAnalysis();
+}));
+$('preset').addEventListener('change',e=>makePreset(e.target.value));
+$('excitation').addEventListener('change',e=>{state.excitation=e.target.value;requestAnalysis()});
+$('duration').addEventListener('change',e=>{const v=Number(e.target.value);if(!Number.isFinite(v)||v<.05||v>100000){e.target.value=state.duration;showStatus('Janela permitida: 0,05 a 100.000 ms.','error');return}state.duration=v;requestAnalysis()});
+for(const key of ['fmin','fmax'])$(key).addEventListener('change',e=>{
+  const value=Number(e.target.value);if(!Number.isFinite(value)||value<.001||value>1e9){e.target.value=state[key];showStatus('Frequências válidas de 0,001 Hz a 1 GHz.','error');return}
+  state[key]=value;requestAnalysis();
+});
+$('analyze').addEventListener('click',requestAnalysis);
+root.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{state.tab=b.dataset.tab;root.querySelectorAll('[data-tab]').forEach(t=>t.classList.toggle('active',t.dataset.tab===state.tab));if(state.tab==='bode')stopPlayback();renderChart()}));
+$('quantity').addEventListener('change',e=>{state.quantity=e.target.value;renderChart()});
+$('clear').addEventListener('click',()=>{if(!confirm('Apagar o circuito atual? Use Salvar antes, se quiser preservá-lo.'))return;stopPlayback();state.components=[];state.wires=[];state.probe=null;state.selectedId=null;state.selWire=-1;state.analysis=null;renderAll();renderChart();requestAnalysis()});
+$('save').addEventListener('click',()=>{
+  const data={version:1,components:state.components,wires:state.wires,probe:state.probe,excitation:state.excitation,duration:state.duration,fmin:state.fmin,fmax:state.fmax};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='circuito_eletrolab.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
+});
+$('load').addEventListener('click',()=>{$('file').click()});
+$('file').addEventListener('change',async e=>{
+  const file=e.target.files?.[0];if(!file)return;
+  try{
+    const data=JSON.parse(await file.text());
+    if(!Array.isArray(data.components)||!Array.isArray(data.wires)||data.components.length>50||data.wires.length>120)throw Error('Formato inválido ou tamanho excedido.');
+    const allowed=new Set(Object.keys(nameMap)),ids=new Set();const comps=[];
+    for(const raw of data.components){
+      if(!raw||typeof raw.id!=='string'||ids.has(raw.id)||!allowed.has(raw.type))throw Error('Componente inválido ou ID repetido.');
+      ids.add(raw.id);const c={...raw,id:raw.id.slice(0,40),name:String(raw.name||raw.type).slice(0,30),x:clamp(Number(raw.x)||100,55,905),y:clamp(Number(raw.y)||120,55,355),rot:([0,90,180,270].includes(Number(raw.rot))?Number(raw.rot):0),value:clamp(Number(raw.value)||1,1e-15,1e12),freq:clamp(Number(raw.freq)||1000,.001,1e9),phase:clamp(Number(raw.phase)||0,-36000,36000),offset:clamp(Number(raw.offset)||0,-1e6,1e6),closed:raw.closed!==false};
+      if(c.type==='dc'||c.type==='ac')c.value=clamp(Number(raw.value)||0,-1e6,1e6);
+      comps.push(c);
+    }
+    const wires=data.wires.filter(w=>w?.a&&w?.b&&ids.has(w.a.id)&&ids.has(w.b.id)&&Number.isInteger(w.a.p)&&Number.isInteger(w.b.p)&&w.a.p>=0&&w.a.p<=(comps.find(c=>c.id===w.a.id)?.type==='ground'?0:1)&&w.b.p>=0&&w.b.p<=(comps.find(c=>c.id===w.b.id)?.type==='ground'?0:1));
+    stopPlayback();state.components=comps;state.wires=wires;state.nextId=1+Math.max(0,...comps.map(c=>Number(c.id.replace(/[^0-9]/g,''))||0));state.selectedId=null;state.selWire=-1;state.pending=null;
+    state.probe=data.probe&&ids.has(data.probe.id)?data.probe:null;state.excitation=ids.has(data.excitation)?data.excitation:null;
+    state.duration=clamp(Number(data.duration)||60,.05,100000);state.fmin=clamp(Number(data.fmin)||1,.001,1e9);state.fmax=clamp(Number(data.fmax)||1e5,.001,1e9);
+    $('duration').value=state.duration;$('fmin').value=state.fmin;$('fmax').value=state.fmax;
+    renderAll();requestAnalysis();showStatus('Arquivo JSON carregado.');
+  }catch(err){showStatus('Falha ao abrir arquivo: '+err.message,'error')}
+  e.target.value='';
+});
+// --------------------- Núcleo de análise nodal modificada ---------------------
+function buildTopology(){
+  const parent=new Map();const keys=[];
+  function find(x){const p=parent.get(x);if(p===x)return x;const r=find(p);parent.set(x,r);return r}
+  function union(a,b){const ra=find(a),rb=find(b);if(ra!==rb)parent.set(rb,ra)}
+  for(const c of state.components)for(let i=0;i<npins(c);i++){const k=pkey(c.id,i);parent.set(k,k);keys.push(k)}
+  for(const w of state.wires)if(parent.has(pkey(w.a.id,w.a.p))&&parent.has(pkey(w.b.id,w.b.p)))union(pkey(w.a.id,w.a.p),pkey(w.b.id,w.b.p));
+  const grounded=new Set();for(const c of state.components)if(c.type==='ground')grounded.add(find(pkey(c.id,0)));
+  const nodemap=new Map();let count=0;
+  const nodes=new Map();for(const k of keys){const r=find(k);if(grounded.has(r))nodes.set(k,0);else{if(!nodemap.has(r))nodemap.set(r,++count);nodes.set(k,nodemap.get(r))}}
+  const branch=new Map();let size=count;
+  for(const c of state.components)if(c.type==='dc'||c.type==='ac'||c.type==='l')branch.set(c.id,size++);
+  const n=(c,p)=>nodes.get(pkey(c.id,p))??0;
+  return {nodes,branch,nodeCount:count,size,n,ground:grounded.size>0};
+}
+function gaussian(A,b){
+  const n=b.length;
+  for(let k=0;k<n;k++){
+    let mx=k,best=Math.abs(A[k][k]);
+    for(let i=k+1;i<n;i++){const v=Math.abs(A[i][k]);if(v>best){best=v;mx=i}}
+    if(best<1e-18||!Number.isFinite(best))throw Error('Sistema singular: verifique fios, fontes ideais e indutores.');
+    if(mx!==k){[A[mx],A[k]]=[A[k],A[mx]];[b[mx],b[k]]=[b[k],b[mx]]}
+    const row=A[k],pivot=row[k];
+    for(let i=k+1;i<n;i++){
+      const mul=A[i][k]/pivot;if(mul===0)continue;A[i][k]=0;
+      const r=A[i];for(let j=k+1;j<n;j++)r[j]-=mul*row[j];b[i]-=mul*b[k];
+    }
+  }
+  const out=new Float64Array(n);
+  for(let i=n-1;i>=0;i--){let x=b[i];for(let j=i+1;j<n;j++)x-=A[i][j]*out[j];out[i]=x/A[i][i];if(!Number.isFinite(out[i])||Math.abs(out[i])>1e20)throw Error('Resultado numérico instável; reveja valores e conexões.')}
+  return out;
+}
+function newMatrix(n){return Array.from({length:n},()=>new Float64Array(n))}
+function solveTransient(top,time,dt,prev){
+  const N=top.size,A=newMatrix(N),b=new Float64Array(N),n=top.n;
+  const g=(na,nb,val)=>{if(na)A[na-1][na-1]+=val;if(nb)A[nb-1][nb-1]+=val;if(na&&nb){A[na-1][nb-1]-=val;A[nb-1][na-1]-=val}};
+  const branch=(c,diag,rhs)=>{const x=top.branch.get(c.id),a=n(c,0),z=n(c,1);
+    if(a){A[a-1][x]+=1;A[x][a-1]+=1}if(z){A[z-1][x]-=1;A[x][z-1]-=1}A[x][x]+=diag;b[x]+=rhs;
+  };
+  for(let i=0;i<top.nodeCount;i++)A[i][i]+=1e-11;
+  for(const c of state.components){const a=n(c,0),z=n(c,1);
+    if(c.type==='r'||c.type==='switch')g(a,z,1/(c.type==='r'?c.value:(c.closed?1e-3:1e9)));
+    if(c.type==='c'){
+      const cap=c.value/dt;g(a,z,cap);
+      const vOld=(a?prev[a-1]:0)-(z?prev[z-1]:0);
+      if(a)b[a-1]+=cap*vOld;if(z)b[z-1]-=cap*vOld;
+    }
+    if(c.type==='l'){
+      const ratio=c.value/dt;branch(c,-ratio,-ratio*prev[top.branch.get(c.id)]);
+    }
+    if(c.type==='dc')branch(c,0,c.value);
+    if(c.type==='ac')branch(c,0,c.offset+c.value*Math.sin(2*Math.PI*c.freq*time+c.phase*Math.PI/180));
+  }
+  return gaussian(A,b);
+}
+function acSolve(top,frequency){
+  const N=top.size,nn=2*N,A=newMatrix(nn),b=new Float64Array(nn),w=2*Math.PI*frequency,n=top.n;
+  const add=(row,col,re=0,im=0)=>{A[row][col]+=re;A[row+N][col+N]+=re;A[row+N][col]+=im;A[row][col+N]-=im};
+  const adm=(a,z,re,im)=>{if(a)add(a-1,a-1,re,im);if(z)add(z-1,z-1,re,im);if(a&&z){add(a-1,z-1,-re,-im);add(z-1,a-1,-re,-im)}};
+  for(let i=0;i<top.nodeCount;i++)add(i,i,1e-11,0);
+  for(const c of state.components){const a=n(c,0),z=n(c,1);
+    if(c.type==='r'||c.type==='switch')adm(a,z,1/(c.type==='r'?c.value:(c.closed?1e-3:1e9)),0);
+    if(c.type==='c')adm(a,z,0,w*c.value);
+    if(c.type==='dc'||c.type==='ac'||c.type==='l'){
+      const k=top.branch.get(c.id);if(a){add(a-1,k,1,0);add(k,a-1,1,0)}if(z){add(z-1,k,-1,0);add(k,z-1,-1,0)}
+      if(c.type==='l')add(k,k,0,-w*c.value);
+      else if(c.id===state.excitation)b[k]=1;
+    }
+  }
+  const v=gaussian(A,b),outNode=state.probe?top.nodes.get(pkey(state.probe.id,state.probe.p)):0;
+  const idx=outNode?outNode-1:-1;
+  return {re:idx>=0?v[idx]:0,im:idx>=0?v[idx+N]:0};
+}
+function voltage(x,node){return node?x[node-1]:0}
+function currentOf(c,x,prev,dt,top){
+  const a=top.n(c,0),z=top.n(c,1),dv=voltage(x,a)-voltage(x,z),dvPrev=voltage(prev,a)-voltage(prev,z);
+  if(c.type==='r')return dv/c.value;if(c.type==='switch')return dv/(c.closed?1e-3:1e9);
+  if(c.type==='c')return c.value*(dv-dvPrev)/dt;
+  if(c.type==='l'||c.type==='dc'||c.type==='ac')return x[top.branch.get(c.id)];return 0;
+}
+function runAnalysis(){
+  const sources=state.components.filter(c=>c.type==='dc'||c.type==='ac');
+  if(!sources.length){state.analysis=null;showStatus('Adicione uma fonte CC ou CA para simular.','error');renderChart();return}
+  if(!state.components.some(c=>c.type==='ground')){state.analysis=null;showStatus('Adicione pelo menos um terra (referência 0 V).','error');renderChart();return}
+  if(!state.probe||!getComponent(state.probe.id)||state.probe.p>=npins(getComponent(state.probe.id))){state.analysis=null;showStatus('Selecione a sonda Vout em um terminal.','error');renderChart();return}
+  if(!(state.fmax>state.fmin)){state.analysis=null;showStatus('A frequência máxima deve ser maior que a mínima.','error');renderChart();return}
+  if(state.components.length>50||state.wires.length>120){state.analysis=null;showStatus('O circuito ultrapassou o limite didático de 50 peças e 120 fios.','error');renderChart();return}
+  const top=buildTopology();const N=420,T=state.duration/1000,dt=T/(N-1),old=new Float64Array(top.size);
+  const node=top.nodes.get(pkey(state.probe.id,state.probe.p));
+  let prev=old,timeSeries=[],fSeries=[];
+  try{
+    const src=getComponent(state.excitation)||sources[0];
+    for(let i=0;i<N;i++){
+      const t=i*dt;
+      const x=i===0?new Float64Array(top.size):solveTransient(top,t,dt,prev);
+      const input=src.type==='dc'?src.value:src.offset+src.value*Math.sin(2*Math.PI*src.freq*t+src.phase*Math.PI/180);
+      const amps={};for(const c of state.components)if(c.type!=='ground')amps[c.id]=i===0?0:currentOf(c,x,prev,dt,top);
+      timeSeries.push({t,y:voltage(x,node),vin:input,currents:amps});prev=x;
+    }
+    for(let i=0;i<240;i++){
+      const f=state.fmin*Math.pow(state.fmax/state.fmin,i/239),result=acSolve(top,f);
+      const mag=Math.max(1e-14,Math.hypot(result.re,result.im));
+      fSeries.push({f,db:20*Math.log10(mag),phase:Math.atan2(result.im,result.re)*180/Math.PI,mag});
+    }
+    state.analysis={time:timeSeries,freq:fSeries,source:src.name,componentCount:state.components.length};
+    showStatus('Simulação concluída · '+top.nodeCount+' nós não aterrados · '+state.wires.length+' fios.');
+  }catch(err){
+    state.analysis=null;showStatus('Não foi possível simular: '+err.message,'error');
+  }
+  renderChart();
+}
+let analyzeTimer=null;
+function requestAnalysis(){if(analyzeTimer)clearTimeout(analyzeTimer);analyzeTimer=setTimeout(()=>{analyzeTimer=null;runAnalysis()},70)}
+function showStatus(s,error){const st=$('status');st.textContent=s;st.classList.toggle('error',error==='error')}
+// ---------------------- Gráficos SVG ----------------------
+function lpath(items,xf,yf,key){return items.map((d,i)=>(i?'L':'M')+xf(d).toFixed(2)+' '+yf(d[key]).toFixed(2)).join(' ')}
+function niceNum(range){const p=Math.pow(10,Math.floor(Math.log10(Math.max(range,1e-15))));const m=range/p;return (m<1.5?1:m<3.5?2:m<7.5?5:10)*p}
+function ticks(min,max,count=5){if(!(max>min))return [min];const step=niceNum((max-min)/count),a=Math.ceil(min/step)*step,arr=[];for(let y=a;y<=max+step*1e-8&&arr.length<30;y+=step)arr.push(y);return arr}
+function statsHtml(){
+  const a=state.analysis;if(!a){$('stats').innerHTML='<span>Sem dados para exibir.</span>';return}
+  if(state.tab==='time'){
+    const last=a.time[a.time.length-1],values=a.time.map(d=>d.y);
+    const peak=Math.max(...values),low=Math.min(...values);
+    $('stats').innerHTML=`<span>Vout final <b>${fmt(last.y,4)} V</b></span><span>Vout máximo <b>${fmt(peak,4)} V</b></span><span>Vout mínimo <b>${fmt(low,4)} V</b></span><span>t total <b>${fmt(state.duration)} ms</b></span>`;
+  }else{
+    const peak=a.freq.reduce((best,d)=>d.db>best.db?d:best,a.freq[0]),max=peak.db;
+    const crossings=[];
+    for(let i=1;i<a.freq.length;i++){
+      const l=a.freq[i-1],r=a.freq[i];if((l.db-(max-3.0103))*(r.db-(max-3.0103))<=0){
+        const w=(max-3.0103-l.db)/(r.db-l.db||1);crossings.push(l.f*Math.pow(r.f/l.f,clamp(w,0,1)));
+      }
+    }
+    $('stats').innerHTML=`<span>Ganho máximo <b>${fmt(peak.db)} dB</b></span><span>Frequência de pico <b>${fmtEngineering(peak.f,'Hz')}</b></span>${crossings.length?`<span>Corte(s) −3 dB <b>${crossings.map(f=>fmtEngineering(f,'Hz')).join(' / ')}</b></span>`:''}`;
+  }
+}
+function noData(message){chart.innerHTML='<text x="470" y="143" text-anchor="middle" fill="#b0c5d9" font-size="17">'+escapeHTML(message)+'</text><text x="470" y="166" text-anchor="middle" fill="#6989a2" font-size="12">Revise os terminais e as conexões no esquemático.</text>';$('stats').textContent='Sem resultados';$('readout').textContent='';}
+function lineSegments(xl,xr,yt,yb){return `<path class="grid" d="M${xl} ${yt}V${yb}H${xr}"/>`}
+function axisX(x,base,label){return `<text class="axis" x="${x}" y="${base}" text-anchor="middle">${escapeHTML(String(label))}</text>`}
+function axisY(y,label){return `<text class="axis" x="70" y="${y+4}" text-anchor="end">${escapeHTML(String(label))}</text>`}
+function renderTime(){
+  const a=state.analysis;if(!a)return noData('Sem dados de simulação');
+  const x0=80,x1=915,y0=21,y1=244,series=a.time;
+  const select=getComponent(state.selectedId),currentMode=state.quantity==='current';
+  const cOk=select&&select.type!=='ground';
+  if(currentMode&&!cOk)return noData('Selecione um resistor, capacitor, indutor, chave ou fonte para ver sua corrente');
+  const yValue=d=>currentMode?d.currents[select.id]??0:d.y;
+  const vals=series.map(yValue),others=currentMode?[]:series.map(d=>d.vin);
+  let low=Math.min(...vals,...others),hi=Math.max(...vals,...others);
+  if(!Number.isFinite(low)||!Number.isFinite(hi))return noData('Valores não numéricos na simulação');
+  let pad=Math.max((hi-low)*.1,Math.max(Math.abs(low),Math.abs(hi))*.06,1e-6);
+  if(Math.abs(hi-low)<1e-9){pad=Math.max(1,Math.abs(hi)*.2)}
+  low-=pad;hi+=pad;
+  const x=d=>x0+(d.t/(state.duration/1000))*(x1-x0),y=v=>y1-(v-low)/(hi-low)*(y1-y0);
+  let markup=`<rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" fill="#102034" rx="2"/>`;
+  for(const yy of ticks(low,hi,5)){const yp=y(yy);markup+=`<line class="grid" x1="${x0}" x2="${x1}" y1="${yp}" y2="${yp}"/>${axisY(yp,fmt(yy,3))}`}
+  for(let k=0;k<=6;k++){const xt=x0+(x1-x0)*k/6;markup+=`<line class="grid" x1="${xt}" x2="${xt}" y1="${y0}" y2="${y1}"/>${axisX(xt,266,fmt(state.duration*k/6,3))}`}
+  markup+=`<text class="axis" x="${(x0+x1)/2}" y="293" text-anchor="middle">Tempo (ms)</text><text class="axis" x="${x0}" y="14">${currentMode?'Corrente (A)':'Tensão (V)'}</text>`;
+  const graphData=series.map(d=>({...d,actual:yValue(d)}));
+  markup+=`<path class="curve-out" d="${lpath(graphData,x,y,'actual')}"/>`;
+  if(!currentMode)markup+=`<path class="curve-in" d="${lpath(series,x,y,'vin')}"/>`;
+  const i=clamp(Math.round(state.cursor*(series.length-1)),0,series.length-1),mark=series[i],xm=x(mark);
+  markup+=`<line class="cursor" x1="${xm}" x2="${xm}" y1="${y0}" y2="${y1}"/><circle cx="${xm}" cy="${y(yValue(mark))}" r="5" fill="#78e3d9" stroke="#0c2031" stroke-width="2"/>`;
+  chart.innerHTML=markup;
+  const selectedName=cOk?select.name:'';
+  $('readout').innerHTML=`<span><i class="legendkey" style="background:#66dacf"></i>${currentMode?'I('+escapeHTML(selectedName)+')':'Vout'}</span>${currentMode?'':'<span><i class="legendkey" style="background:#eeb77c"></i>Vin (fonte selecionada)</span>'}<span>Cursor: <b>${fmt(mark.t*1000,4)} ms</b> · <b>${fmt(yValue(mark),4)} ${currentMode?'A':'V'}</b></span>`;
+  $('chartnote').textContent=currentMode?'Corrente convencional positiva do terminal A para o B, no elemento selecionado.':'Vin representa a tensão ideal da fonte escolhida; Vout é o potencial da sonda em relação à terra. Clique no gráfico para posicionar o cursor.';
+}
+function renderBode(){
+  const a=state.analysis;if(!a)return noData('Sem dados de frequência');const data=a.freq;
+  const x0=80,x1=916,y0=21,y1=163,p0=197,p1=252;
+  const fmin=state.fmin,fmax=state.fmax,logMin=Math.log10(fmin),logDiff=Math.log10(fmax)-logMin;
+  const x=d=>x0+(Math.log10(d.f)-logMin)/logDiff*(x1-x0);
+  const rawDb=data.map(d=>Math.max(-240,d.db));let minDb=Math.min(...rawDb),maxDb=Math.max(...rawDb);
+  minDb=Math.floor((minDb-6)/10)*10;maxDb=Math.ceil((maxDb+6)/10)*10;
+  minDb=Math.max(-260,minDb);maxDb=Math.min(100,maxDb);if(maxDb-minDb<10){minDb-=10;maxDb+=10}
+  const yy=v=>y1-(clamp(v,minDb,maxDb)-minDb)/(maxDb-minDb)*(y1-y0);
+  const yp=v=>p1-(v+180)/360*(p1-p0);
+  let markup=`<rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" fill="#102034"/><rect x="${x0}" y="${p0}" width="${x1-x0}" height="${p1-p0}" fill="#102034"/>`;
+  const dtick=ticks(minDb,maxDb,5);
+  for(const v of dtick){let y=yy(v);markup+=`<line class="grid" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/>${axisY(y,fmt(v)+' dB')}`}
+  for(let p=-180;p<=180;p+=90){let y=yp(p);markup+=`<line class="grid" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/>${axisY(y,p+'°')}`}
+  for(let power=Math.ceil(logMin);power<=Math.floor(Math.log10(fmax));power++){
+    const f=Math.pow(10,power),xt=x({f});markup+=`<line class="grid" x1="${xt}" x2="${xt}" y1="${y0}" y2="${p1}"/>${axisX(xt,271,fmtEngineering(f,'Hz'))}`;
+  }
+  if(Math.floor(Math.log10(fmax))-Math.ceil(logMin)<2){for(let k=0;k<=4;k++){const ff=fmin*Math.pow(fmax/fmin,k/4),xt=x({f:ff});markup+=`<line class="grid" x1="${xt}" x2="${xt}" y1="${y0}" y2="${p1}"/>${axisX(xt,271,fmtEngineering(ff,'Hz'))}`}}
+  markup+=`<text class="axis" x="${x0}" y="14">Magnitude · 20 log₁₀ |Vout/Vin|</text><text class="axis" x="${x0}" y="187">Fase (graus)</text><text class="axis" x="${(x0+x1)/2}" y="292" text-anchor="middle">Frequência (escala logarítmica)</text>`;
+  markup+=`<path class="curve-out" d="${lpath(data,x,yy,'db')}"/><path class="curve-phase" d="${lpath(data,x,yp,'phase')}"/>`;
+  // Cursor é selecionável também na varredura.
+  const idx=clamp(Math.round(state.cursor*(data.length-1)),0,data.length-1),item=data[idx],xx=x(item);
+  markup+=`<line class="cursor" x1="${xx}" x2="${xx}" y1="${y0}" y2="${p1}"/><circle cx="${xx}" cy="${yy(item.db)}" r="5" fill="#66dacf" stroke="#0c2031" stroke-width="2"/>`;
+  chart.innerHTML=markup;
+  $('readout').innerHTML=`<span><i class="legendkey" style="background:#66dacf"></i>Ganho (dB)</span><span><i class="legendkey" style="background:#a6a0f4"></i>Fase (°)</span><span>Cursor: <b>${fmtEngineering(item.f,'Hz')}</b> · <b>${fmt(item.db)} dB</b> · <b>${fmt(item.phase)}°</b></span>`;
+  $('chartnote').textContent='Resposta em frequência de pequenos sinais: a fonte de entrada selecionada é excitada por 1 V senoidal, com as demais fontes independentes de tensão anuladas.';
+}
+function renderChart(){statsHtml();if(!state.analysis)return noData('Monte um circuito válido e clique em Simular');if(state.tab==='time')renderTime();else renderBode()}
+chart.addEventListener('pointerdown',e=>{
+  if(!state.analysis)return;const rect=chart.getBoundingClientRect();const relative=(e.clientX-rect.left)*940/rect.width;
+  state.cursor=clamp((relative-80)/(916-80),0,1);renderChart();
+});
+function stopPlayback(){if(state.frame)cancelAnimationFrame(state.frame);state.frame=0;state.playing=false;state.lastStamp=0;const e=$('togglePlayback');if(e)e.textContent='▶ Animar'}
+function animate(timestamp){
+  if(!state.playing)return;if(!state.lastStamp)state.lastStamp=timestamp;
+  const dt=Math.min(.1,(timestamp-state.lastStamp)/1000);state.lastStamp=timestamp;
+  state.cursor=(state.cursor+dt/5)%1;renderChart();state.frame=requestAnimationFrame(animate);
+}
+$('togglePlayback').addEventListener('click',()=>{
+  if(state.playing){stopPlayback();return}if(!state.analysis)return;
+  if(state.tab!=='time'){state.tab='time';root.querySelectorAll('[data-tab]').forEach(t=>t.classList.toggle('active',t.dataset.tab==='time'))}
+  state.playing=true;state.lastStamp=0;$('togglePlayback').textContent='Ⅱ Pausar';state.frame=requestAnimationFrame(animate);
+});
+if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){$('togglePlayback').title='Animação opcional; você pode clicar no gráfico para mover o cursor.'}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPlayback()});
+makePreset('rcCharge');
+})();
+
+</script></body></html>
