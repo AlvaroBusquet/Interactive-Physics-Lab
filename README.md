@@ -1,14 +1,16 @@
-# Ferramentas Interativas de Eletromagnetismo
+# Ferramentas Interativas de Física
 
-**Laboratórios virtuais para explorar fenômenos elétricos por meio de visualizações e parâmetros ajustáveis.**
+**Laboratórios virtuais para explorar fenômenos físicos por meio de visualizações e parâmetros ajustáveis.**
 
-Este projeto reúne ferramentas didáticas interativas voltadas ao ensino e à aprendizagem de eletricidade e eletromagnetismo. O objetivo é complementar a teoria com experimentos virtuais, permitindo observar como diferentes configurações físicas influenciam os campos e as grandezas elétricas.
+Este projeto reúne ferramentas didáticas interativas voltadas ao ensino e à aprendizagem de física, com ênfase em eletricidade e eletromagnetismo e extensão para a transferência de calor. O objetivo é complementar a teoria com experimentos virtuais, permitindo observar como diferentes configurações físicas influenciam os campos e as grandezas envolvidas.
 
 As aplicações utilizam **HTML, CSS e JavaScript** e foram concebidas para execução diretamente no navegador, sem necessidade de instalar softwares especializados.
 
 ## Ferramentas disponíveis
 
-### 1. Laboratório Interativo de Eletrostática
+### Eletromagnetismo
+
+#### 1. Laboratório Interativo de Eletrostática
 
 **Arquivo:** [`laboratorio_interativo_eletrostatica.html`](./laboratorio_interativo_eletrostatica.html)
 
@@ -21,9 +23,21 @@ Permite investigar distribuições de cargas elétricas e suas interações por 
 - Examinar o potencial elétrico por meio de um mapa de cores.
 - Exibir vetores de força elétrica entre pares de cargas.
 
-### 2. Laboratório de Campos Elétricos em Capacitores
+#### 2. Laboratório de Migração de Cargas e Blindagem (Condutores)
 
-**Arquivo:** [`laboratorio_capacitores_interativo.html`](./laboratorio_capacitores_interativo.html)
+**Arquivo:** [`laboratorio_interativo_condutores.html`](./laboratorio_interativo_condutores.html)
+
+Explora a indução eletrostática em condutores e o efeito de blindagem, incluindo a gaiola de Faraday.
+
+#### 3. Laboratório de Polarização em Isolantes
+
+**Arquivo:** [`laboratorio_interativo_isolantes.html`](./laboratorio_interativo_isolantes.html)
+
+Explora materiais dielétricos, cargas ligadas e o campo elétrico em isolantes.
+
+#### 4. Laboratório de Campos Elétricos em Capacitores
+
+**Arquivo:** [`laboratorio_interativo_capacitores.html`](./laboratorio_interativo_capacitores.html)
 
 Permite comparar geometrias de capacitores e investigar a influência do dielétrico e das condições de operação sobre suas propriedades eletrostáticas.
 
@@ -33,6 +47,26 @@ Permite comparar geometrias de capacitores e investigar a influência do dielét
 - Alterar dimensões geométricas e permissividade relativa do dielétrico.
 - Comparar condições de tensão fixa e carga fixa.
 - Acompanhar grandezas como capacitância, tensão, carga, campo elétrico e energia armazenada.
+
+#### 5. Laboratório Interativo de Circuitos
+
+**Arquivo:** [`laboratorio_interativo_circuitos.html`](./laboratorio_interativo_circuitos.html)
+
+Simulador visual de circuitos RC, RLC e filtros passivos, com fontes CC e CA, para construir, conectar e analisar circuitos no próprio navegador.
+
+### Termodinâmica
+
+#### 6. Laboratório Interativo de Transferência de Calor
+
+**Arquivo:** [`laboratorio_interativo_transferencia_calor.html`](./laboratorio_interativo_transferencia_calor.html)
+
+Compara os três mecanismos de transferência de calor: condução, convecção e irradiação.
+
+**Funcionalidades:**
+- Estimar a condução pela lei de Fourier em uma barra plana.
+- Observar a circulação do fluido na convecção, com a superfície quente ou fria.
+- Ajustar temperaturas e emissividade na troca de energia por irradiação.
+- Visualizar animações cuja intensidade acompanha o fluxo de calor calculado.
 
 ## Como utilizar
 
@@ -48,7 +82,7 @@ Em especial, os modelos de capacitores não substituem simulações tridimension
 
 ## Desenvolvimento
 
-O projeto poderá ser ampliado com outras ferramentas de eletromagnetismo, incluindo um simulador de circuitos com fontes CC/CA, resistores, capacitores, indutores e chaves, voltado à exploração de circuitos RC, RLC e filtros elétricos.
+O projeto poderá ser ampliado com outras ferramentas de física, em eletromagnetismo, termodinâmica ou outras áreas, mantendo o mesmo formato: um arquivo HTML autocontido por ferramenta, listado no `index.html` na seção do tema correspondente.
 
 ## Contribuições
 
